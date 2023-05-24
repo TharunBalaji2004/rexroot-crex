@@ -1,12 +1,19 @@
 package com.example.rexrootcrexapp
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
+import android.view.View
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rexrootcrexapp.Data.JobReqDataClass
@@ -18,46 +25,56 @@ import com.google.firebase.database.ValueEventListener
 
 class MainActivity : AppCompatActivity() {
 
-    private val loadingProgressBar : ProgressBar
-        get() = findViewById(R.id.pb_jobreq)
-
     private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: JobReqAdapter
     private lateinit var jobReqList: ArrayList<JobReqDataClass>
-    private lateinit var firebaseDB: DatabaseReference
+    private lateinit var loadingProgressBar: ProgressBar
+    private lateinit var searchView: SearchView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_screen)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            window.statusBarColor = Color.BLACK
-        }
-
         recyclerView = findViewById(R.id.rv_jobreq)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         jobReqList = arrayListOf()
-        loadingProgressBar.visibility = ProgressBar.VISIBLE
+        loadingProgressBar = findViewById(R.id.pb_jobreq)
+        searchView = findViewById(R.id.sv_searchjobrole)
 
-        firebaseDB = FirebaseDatabase.getInstance().getReference("root")
+        val firebaseDB = FirebaseDatabase.getInstance().getReference("root")
+        val query = firebaseDB.orderByKey()
 
-        firebaseDB.orderByKey().addValueEventListener(object : ValueEventListener {
+        query.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()){
-                    loadingProgressBar.visibility = ProgressBar.INVISIBLE
-                    for (dataSnapshot in snapshot.children){
+                if (snapshot.exists()) {
+                    jobReqList.clear()
+                    for (dataSnapshot in snapshot.children) {
                         val jobReqCard = dataSnapshot.getValue(JobReqDataClass::class.java)
-                        if (!jobReqList.contains(jobReqCard)){
-                            jobReqList.add(jobReqCard!!) //null check
-                        }
+                        jobReqCard?.let { jobReqList.add(it) }
                     }
-                    recyclerView.adapter = JobReqAdapter(jobReqList)
+                    adapter.notifyDataSetChanged()
                 }
+                loadingProgressBar.visibility = ProgressBar.INVISIBLE
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.d("FirebaseDB","Error Occured:"+error)
-                Toast.makeText(this@MainActivity,"Database error occured", Toast.LENGTH_SHORT).show()
+                Log.d("FirebaseDB", "Error Occurred: $error")
+                Toast.makeText(this@MainActivity, "Database error occurred", Toast.LENGTH_SHORT).show()
+            }
+        })
+
+        adapter = JobReqAdapter(jobReqList)
+        recyclerView.adapter = adapter
+
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextChange(newText: String?): Boolean {
+                adapter.filter.filter(newText)
+                return false
+            }
+
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
             }
         })
     }
@@ -65,5 +82,10 @@ class MainActivity : AppCompatActivity() {
     override fun onBackPressed() {
         super.onBackPressed()
         finishAffinity()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        searchView.clearFocus()
     }
 }

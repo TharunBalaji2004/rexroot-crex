@@ -56,4 +56,6 @@ dependencies {
     implementation("com.google.firebase:firebase-database:20.2.1")
     implementation("com.google.firebase:firebase-firestore-ktx:24.6.0")
 
+    implementation("androidx.appcompat:appcompat:1.6.1")
+
 }

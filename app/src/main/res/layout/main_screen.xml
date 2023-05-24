@@ -38,21 +38,17 @@
         </RelativeLayout>
 
         <LinearLayout
+            android:id="@+id/ll_sv_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <EditText
-                android:id="@+id/et_searchjobrole"
-                android:layout_weight="1"
-                android:layout_width="wrap_content"
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/sv_searchjobrole"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:imeOptions="actionSearch"
-                android:maxLines="1"
-                android:padding="12dp"
-                android:hint="Search for job role"
-                android:drawableLeft="@drawable/icon_search24px"
-                android:drawablePadding="15dp"
-                android:background="@drawable/bg_inputbox" />
+                app:queryHint="Job role or Company name"
+                android:background="@drawable/bg_inputbox"
+                app:iconifiedByDefault="false"/>
 
         </LinearLayout>
 
