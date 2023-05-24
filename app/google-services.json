@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "874216651057",
+    "project_id": "rexroot-req-database",
+    "storage_bucket": "rexroot-req-database.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:874216651057:android:c4924dcf6a9faaad601810",
+        "android_client_info": {
+          "package_name": "com.example.rexrootadminapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "874216651057-sgdht5diglq6324gr7s7t8f2vk4s5glh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCM9Qr_j92HDkJV_0T7x6zVlKIEEVu9iNE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "874216651057-sgdht5diglq6324gr7s7t8f2vk4s5glh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:874216651057:android:f1e3ce0bb21e967b601810",
+        "android_client_info": {
+          "package_name": "com.example.rexrootcrexapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "874216651057-sgdht5diglq6324gr7s7t8f2vk4s5glh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCM9Qr_j92HDkJV_0T7x6zVlKIEEVu9iNE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "874216651057-sgdht5diglq6324gr7s7t8f2vk4s5glh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
