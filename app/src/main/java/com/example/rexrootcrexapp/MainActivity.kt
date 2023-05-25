@@ -1,6 +1,8 @@
 package com.example.rexrootcrexapp
 
 import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -10,6 +12,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.Toast
@@ -30,6 +33,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var jobReqList: ArrayList<JobReqDataClass>
     private lateinit var loadingProgressBar: ProgressBar
     private lateinit var searchView: SearchView
+    private lateinit var ivLogOut: ImageView
+
+    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var editor: SharedPreferences.Editor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,9 +48,21 @@ class MainActivity : AppCompatActivity() {
         jobReqList = arrayListOf()
         loadingProgressBar = findViewById(R.id.pb_jobreq)
         searchView = findViewById(R.id.sv_searchjobrole)
+        ivLogOut = findViewById(R.id.iv_logout)
 
         val firebaseDB = FirebaseDatabase.getInstance().getReference("root")
         val query = firebaseDB.orderByKey()
+
+        sharedPreferences = getSharedPreferences("UserPreferences",Context.MODE_PRIVATE)
+        editor = sharedPreferences.edit()
+
+        ivLogOut.setOnClickListener {
+            editor.putBoolean("isLoggedIn",false)
+            editor.commit()
+
+            val intent = Intent(this@MainActivity,LoginScreenActivity::class.java)
+            startActivity(intent)
+        }
 
         query.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {

@@ -1,6 +1,8 @@
 package com.example.rexrootcrexapp
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -9,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 
 class SplashScreenActivity : AppCompatActivity() {
     private val splashTimeOut : Long = 1000
+    private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,9 +21,20 @@ class SplashScreenActivity : AppCompatActivity() {
             window.statusBarColor = getColor(R.color.white)
         }
 
+        sharedPreferences = getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
+
         Handler().postDelayed({
-            val intent = Intent(this@SplashScreenActivity,SignupScreenActivity::class.java)
-            startActivity(intent)
+
+            val isLoggedIn = sharedPreferences.getBoolean("isLoggedIn",false)
+
+            if (isLoggedIn) {
+                val intent = Intent(this@SplashScreenActivity,MainActivity::class.java)
+                startActivity(intent)
+            } else {
+                val intent = Intent(this@SplashScreenActivity,LoginScreenActivity::class.java)
+                startActivity(intent)
+            }
+
         }, splashTimeOut)
     }
 }

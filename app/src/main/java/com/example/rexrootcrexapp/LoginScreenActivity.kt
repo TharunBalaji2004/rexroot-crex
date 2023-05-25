@@ -2,6 +2,7 @@ package com.example.rexrootcrexapp
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.Rect
 import android.os.Build
@@ -39,8 +40,8 @@ class LoginScreenActivity : AppCompatActivity() {
         get() = findViewById(R.id.progress_bar)
 
     private lateinit var mAuth: FirebaseAuth
-
-    private var isClicked = false;
+    private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var editor: SharedPreferences.Editor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +55,8 @@ class LoginScreenActivity : AppCompatActivity() {
         }
 
         mAuth = FirebaseAuth.getInstance()
+        sharedPreferences = getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
+        editor = sharedPreferences.edit()
 
         btnLogIn.setOnClickListener {
             logInUser()
@@ -93,9 +96,14 @@ class LoginScreenActivity : AppCompatActivity() {
                                         Toast.LENGTH_SHORT
                                     ).show()
 
+                                    val user = mAuth.currentUser
+                                    editor.putBoolean("isLoggedIn",true)
+                                    editor.commit()
+
                                     val intent =
                                         Intent(this@LoginScreenActivity, MainActivity::class.java)
                                     startActivity(intent)
+
                                 } else {
                                     Log.d("FirebaseAuth", "(UNSUCCESSFUL) Account Login")
 
@@ -105,6 +113,10 @@ class LoginScreenActivity : AppCompatActivity() {
                                         "Invalid email or password",
                                         Toast.LENGTH_SHORT
                                     ).show()
+
+                                    editor.putBoolean("isLoggedIn",false)
+                                    editor.commit()
+
                                 }
                             }
                     } else {
@@ -117,6 +129,10 @@ class LoginScreenActivity : AppCompatActivity() {
                             "Account does not exist",
                             Toast.LENGTH_SHORT
                         ).show()
+
+                        editor.putBoolean("isLoggedIn",false)
+                        editor.commit()
+
                     }
 
                 } else {
@@ -125,6 +141,10 @@ class LoginScreenActivity : AppCompatActivity() {
                     progressBar.visibility = View.INVISIBLE
                     Toast.makeText(this@LoginScreenActivity, "Error occurred", Toast.LENGTH_SHORT)
                         .show()
+
+                    editor.putBoolean("isLoggedIn",false)
+                    editor.commit()
+
                 }
             }
         }
@@ -163,4 +183,10 @@ class LoginScreenActivity : AppCompatActivity() {
             false
         }
     }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finishAffinity()
+    }
+
 }

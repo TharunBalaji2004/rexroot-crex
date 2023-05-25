@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
 import android.widget.TextView
+import androidx.core.app.ActivityOptionsCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rexrootcrexapp.Data.JobReqDataClass
 import java.util.Locale
@@ -67,10 +68,12 @@ class JobReqAdapter(private val jobReqList : ArrayList<JobReqDataClass>) : Recyc
             itemView.setOnClickListener {
                 val context = itemView.context
                 val intent = Intent(context, JobReqScreenActivity::class.java)
+
                 intent.putExtra("jobRole", item.jobRole)
                 intent.putExtra("compName", item.companyName)
                 intent.putExtra("pricePerClosure", item.pricePerClosure)
                 intent.putExtra("jobDesc", item.jobDesc)
+
                 context.startActivity(intent)
             }
         }
