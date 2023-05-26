@@ -25,6 +25,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.firebase.firestore.FirebaseFirestore
 
 class MainActivity : AppCompatActivity() {
 
@@ -35,8 +36,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var searchView: SearchView
     private lateinit var ivLogOut: ImageView
 
-    private lateinit var sharedPreferences: SharedPreferences
-    private lateinit var editor: SharedPreferences.Editor
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,8 +53,10 @@ class MainActivity : AppCompatActivity() {
         val firebaseDB = FirebaseDatabase.getInstance().getReference("root")
         val query = firebaseDB.orderByKey()
 
-        sharedPreferences = getSharedPreferences("UserPreferences",Context.MODE_PRIVATE)
-        editor = sharedPreferences.edit()
+        val sharedPreferences = getSharedPreferences("UserPreferences",Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+
+        findUsersDocumentRef()
 
         ivLogOut.setOnClickListener {
             editor.putBoolean("isLoggedIn",false)
@@ -106,5 +108,35 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         searchView.clearFocus()
+    }
+
+    private fun findUsersDocumentRef() {
+        val db = FirebaseFirestore.getInstance()
+
+        val collectionRef = db.collection("users")
+
+        val sharedPreferences = getSharedPreferences("UserPreferences",Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+
+        val email = sharedPreferences.getString("userEmailID","")
+        Log.d("FirestoreDB","UserEmail: ${email}")
+
+        collectionRef
+            .whereEqualTo("profiledata.emailid", email)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    val document = querySnapshot.documents[0]
+                    editor.putString("userDocumentId", document.id)
+                    Log.d("userDocumentId","userDocumentId: ${document.id}")
+                    editor.commit()
+                } else {
+                    Log.d("FirestoreDB","Profile Data not found")
+                }
+            }
+            .addOnFailureListener { exception ->
+                // Error occurred
+            }
+
     }
 }

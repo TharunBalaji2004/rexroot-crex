@@ -98,6 +98,7 @@ class LoginScreenActivity : AppCompatActivity() {
 
                                     val user = mAuth.currentUser
                                     editor.putBoolean("isLoggedIn",true)
+                                    editor.putString("userEmailID",userEmailID)
                                     editor.commit()
 
                                     val intent =
@@ -188,5 +189,6 @@ class LoginScreenActivity : AppCompatActivity() {
         super.onBackPressed()
         finishAffinity()
     }
+
 
 }

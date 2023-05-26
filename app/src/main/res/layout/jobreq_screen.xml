@@ -206,39 +206,80 @@
                     android:gravity="center"
                     android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/tv_submitted"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Submitted: 0"
-                        android:textSize="18sp"
-                        android:textStyle="bold">
-                    </TextView>
-
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content">
 
                         <TextView
-                            android:id="@+id/tv_rejected"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Rejected: 0"
-                            android:textColor="#FF0000"
+                            android:text="Submitted: "
+                            android:textSize="18sp"
+                            android:textStyle="bold">
+                        </TextView>
+                        <TextView
+                            android:id="@+id/tv_submitted"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
                             android:textSize="18sp"
                             android:textStyle="bold">
                         </TextView>
 
-                        <TextView
-                            android:id="@+id/tv_accepted"
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <LinearLayout
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="25dp"
-                            android:text="Accepted: 0"
-                            android:textColor="#4CBB17"
-                            android:textSize="18sp"
-                            android:textStyle="bold">
-                        </TextView>
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Rejected: "
+                                android:textColor="#FF0000"
+                                android:textSize="18sp"
+                                android:textStyle="bold">
+                            </TextView>
+                            <TextView
+                                android:id="@+id/tv_rejected"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textColor="#FF0000"
+                                android:textSize="18sp"
+                                android:textStyle="bold">
+                            </TextView>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="25dp"
+                                android:text="Accepted: "
+                                android:textColor="#4CBB17"
+                                android:textSize="18sp"
+                                android:textStyle="bold">
+                            </TextView>
+                            <TextView
+                                android:id="@+id/tv_accepted"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0"
+                                android:textColor="#4CBB17"
+                                android:textSize="18sp"
+                                android:textStyle="bold">
+                            </TextView>
+
+                        </LinearLayout>
 
                     </LinearLayout>
 
@@ -269,18 +310,16 @@
             android:background="#ededed">
         </View>
 
-        <androidx.appcompat.widget.AppCompatButton
+        <Button
             android:id="@+id/btn_submitresume"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingStart="15sp"
-            android:paddingEnd="15sp"
+            android:padding="15sp"
             android:text="Submit Resume"
             android:textAllCaps="false"
-            android:background="@drawable/bg_button_submit"
             android:textColor="@color/white"
             android:textStyle="bold">
-        </androidx.appcompat.widget.AppCompatButton>
+        </Button>
 
 
     </LinearLayout>
