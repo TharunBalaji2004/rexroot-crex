@@ -217,6 +217,7 @@
                             android:textSize="18sp"
                             android:textStyle="bold">
                         </TextView>
+
                         <TextView
                             android:id="@+id/tv_submitted"
                             android:layout_width="wrap_content"

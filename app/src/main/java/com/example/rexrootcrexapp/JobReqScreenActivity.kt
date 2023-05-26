@@ -9,6 +9,7 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.provider.OpenableColumns
 import android.util.Log
 import android.view.View
@@ -18,14 +19,10 @@ import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.AppCompatButton
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.tasks.await
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
+import com.google.firebase.firestore.SetOptions
 import java.util.UUID
 
 class JobReqScreenActivity : AppCompatActivity() {
@@ -34,6 +31,10 @@ class JobReqScreenActivity : AppCompatActivity() {
 
     private var selectedFiles = mutableListOf<Uri>()
     private var selectedFilesNames = mutableListOf<String>()
+
+    private var submittedCount = 0
+    private var rejectedCount = 0
+    private var acceptedCount = 0
 
     lateinit var ivExit : LinearLayout
     lateinit var tvHeaderJobRole : TextView
@@ -44,11 +45,16 @@ class JobReqScreenActivity : AppCompatActivity() {
     lateinit var tvCompName : TextView
     lateinit var tvPricePerClosure : TextView
     lateinit var tvJobDesc : TextView
+    lateinit var tvSubmitted : TextView
+    lateinit var tvRejected : TextView
+    lateinit var tvAccepted : TextView
     lateinit var btnSubmitResume : Button
 
     private lateinit var mediaPlayer: MediaPlayer
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var userDocumentId : String
+    private lateinit var jobId : String
+    private lateinit var fileName : String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,14 +77,20 @@ class JobReqScreenActivity : AppCompatActivity() {
         tvJobDesc = findViewById(R.id.tv_jobdesc)
         scrollView = findViewById(R.id.scroll_view)
         llBody = findViewById(R.id.ll_body)
+        tvSubmitted = findViewById(R.id.tv_submitted)
+        tvRejected = findViewById(R.id.tv_rejected)
+        tvAccepted = findViewById(R.id.tv_accepted)
         btnSubmitResume = findViewById(R.id.btn_submitresume)
         mediaPlayer = MediaPlayer.create(this@JobReqScreenActivity, R.raw.file_upload_success)
+
+        refreshSubmissions()
 
         ivExit.setOnClickListener {
             onBackPressed()
         }
 
         // Get data from previous Activity
+        jobId = intent.getStringExtra("jobId").toString()
         tvJobRole.text = intent.getStringExtra("jobRole")
         tvCompName.text = intent.getStringExtra("compName")
         tvPricePerClosure.text = intent.getStringExtra("pricePerClosure")
@@ -146,7 +158,7 @@ class JobReqScreenActivity : AppCompatActivity() {
         val storageRef = Firebase.storage.reference
 
         fileUris.forEachIndexed { index, fileUri ->
-            val fileName = UUID.randomUUID().toString() + ".pdf"
+            fileName = UUID.randomUUID().toString() + ".pdf"
             val pdfRef = storageRef.child("pdfs/$fileName")
 
             val uploadTask = pdfRef.putFile(fileUri)
@@ -172,23 +184,25 @@ class JobReqScreenActivity : AppCompatActivity() {
         Log.d("FirestoreDB","userDocumentRef: ${userDocumentRef}")
         userDocumentRef.get().addOnSuccessListener { documentSnapshot ->
             if (documentSnapshot.exists()){
-                val data = documentSnapshot.data
 
-                if (data != null){
-                    val submitDataField = data["submitdata"] as HashMap<String,Any>
+                val newResumeData = hashMapOf(
+                    "submitdata" to hashMapOf(
+                        jobId to hashMapOf(
+                            fileName to hashMapOf(
+                                "resumeUrl" to downloadUrl,
+                                "resumeStatus" to "0"
+                            )
+                        )
+                    )
+                )
 
-                    submitDataField["jobid"] = downloadUrl
-
-                    userDocumentRef.update("submitdata",submitDataField)
-                        .addOnSuccessListener {
-                            Log.d("FirestoreDB","Document updated successful")
-                        }
-                        .addOnFailureListener {
-                            Log.d("FirestoreDB","Document updated unsuccessful")
-                        }
-                } else {
-                    Log.d("FirestoreDB","Data is null")
-                }
+                userDocumentRef.set(newResumeData,SetOptions.merge())
+                    .addOnSuccessListener {
+                        Log.d("FirestoreDB","Document updated successful")
+                    }
+                    .addOnFailureListener {
+                        Log.d("FirestoreDB","Document updated unsuccessful")
+                    }
 
             } else {
                 Log.d("FirestoreDB","Document doesn't exist")
@@ -202,6 +216,10 @@ class JobReqScreenActivity : AppCompatActivity() {
 
             selectedFiles = mutableListOf<Uri>()
             selectedFilesNames = mutableListOf<String>()
+
+            Handler().postDelayed({
+                refreshSubmissions()
+            },500)
 
             btnSubmitResume.setBackgroundColor(Color.parseColor("#e51e26"))
             btnSubmitResume.isEnabled = true
@@ -227,5 +245,53 @@ class JobReqScreenActivity : AppCompatActivity() {
             fileName = uri.lastPathSegment
         }
         return fileName ?: "N/A"
+    }
+
+    private fun refreshSubmissions() {
+        val userDocumentRef = db.collection("users").document(userDocumentId)
+
+        submittedCount = 0
+        rejectedCount = 0
+        acceptedCount = 0
+
+        userDocumentRef.get().addOnSuccessListener { documentSnapshot ->
+            if (documentSnapshot.exists()){
+
+                val submitData = documentSnapshot.get("submitdata") as? Map<*,*>
+                Log.d("submitdata",submitData.toString())
+
+                if (submitData != null) {
+                    val uploadedResumes = submitData[jobId] as? Map<*, *>
+
+                    if (uploadedResumes != null) {
+                        var resumeProcessedCount = 0
+
+                        for (itemResume in uploadedResumes.keys){
+
+                            val resumeData = uploadedResumes[itemResume] as? Map<*, *>
+                            val resumeStatus = resumeData?.get("resumeStatus")
+
+                            if (resumeStatus == "0") submittedCount++
+                            if (resumeStatus == "1") acceptedCount++
+                            if (resumeStatus == "-1") rejectedCount++
+
+                            Log.d("submittedCount","$submittedCount")
+
+                            resumeProcessedCount++
+
+                            if (resumeProcessedCount == uploadedResumes.size){
+                                tvSubmitted.text = submittedCount.toString()
+                                tvRejected.text = rejectedCount.toString()
+                                tvAccepted.text = acceptedCount.toString()
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Document does not exist
+            }
+        }
+
+
     }
 }

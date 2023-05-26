@@ -71,6 +71,8 @@ class MainActivity : AppCompatActivity() {
                 if (snapshot.exists()) {
                     jobReqList.clear()
                     for (dataSnapshot in snapshot.children) {
+                        val dataSnapshotId = dataSnapshot.key
+                        Log.d("dataSnapshotId","dataSnapshotId: ${dataSnapshotId}")
                         val jobReqCard = dataSnapshot.getValue(JobReqDataClass::class.java)
                         jobReqCard?.let { jobReqList.add(it) }
                     }

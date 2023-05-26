@@ -69,6 +69,7 @@ class JobReqAdapter(private val jobReqList : ArrayList<JobReqDataClass>) : Recyc
                 val context = itemView.context
                 val intent = Intent(context, JobReqScreenActivity::class.java)
 
+                intent.putExtra("jobId",item.jobId)
                 intent.putExtra("jobRole", item.jobRole)
                 intent.putExtra("compName", item.companyName)
                 intent.putExtra("pricePerClosure", item.pricePerClosure)
