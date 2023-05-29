@@ -40,6 +40,7 @@ class JobReqScreenActivity : AppCompatActivity() {
     lateinit var tvHeaderJobRole : TextView
     lateinit var tvHeaderCompName : TextView
     lateinit var llBody : LinearLayout
+    lateinit var llJobTitle : LinearLayout
     lateinit var scrollView : ScrollView
     lateinit var tvJobRole : TextView
     lateinit var tvCompName : TextView
@@ -49,6 +50,8 @@ class JobReqScreenActivity : AppCompatActivity() {
     lateinit var tvRejected : TextView
     lateinit var tvAccepted : TextView
     lateinit var btnSubmitResume : Button
+    lateinit var btnUploadResume : Button
+    lateinit var vElevation : View
 
     private lateinit var mediaPlayer: MediaPlayer
     private lateinit var sharedPreferences: SharedPreferences
@@ -77,10 +80,13 @@ class JobReqScreenActivity : AppCompatActivity() {
         tvJobDesc = findViewById(R.id.tv_jobdesc)
         scrollView = findViewById(R.id.scroll_view)
         llBody = findViewById(R.id.ll_body)
+        llJobTitle = findViewById(R.id.ll_jobtitle)
         tvSubmitted = findViewById(R.id.tv_submitted)
         tvRejected = findViewById(R.id.tv_rejected)
         tvAccepted = findViewById(R.id.tv_accepted)
         btnSubmitResume = findViewById(R.id.btn_submitresume)
+        btnUploadResume = findViewById(R.id.btn_uploadresume)
+        vElevation = findViewById(R.id.v_elevation)
         mediaPlayer = MediaPlayer.create(this@JobReqScreenActivity, R.raw.file_upload_success)
 
         refreshSubmissions()
@@ -99,33 +105,38 @@ class JobReqScreenActivity : AppCompatActivity() {
         tvHeaderJobRole.text = tvJobRole.text
         tvHeaderCompName.text = tvCompName.text
         btnSubmitResume.setBackgroundColor(Color.parseColor("#e51e26"))
+        btnUploadResume.setBackgroundColor(Color.parseColor("#f06c71"))
+        btnUploadResume.isEnabled = false
 
         scrollView.viewTreeObserver.addOnScrollChangedListener {
             val scrollY = scrollView.scrollY
-            val heightllJobTitle = llBody.getChildAt(0).height
+            val heightllJobRole = llJobTitle.getChildAt(0).height
 
-            if (scrollY >= heightllJobTitle) {
+            if (scrollY >= heightllJobRole) {
                 tvHeaderJobRole.visibility = View.VISIBLE
                 tvHeaderCompName.visibility = View.VISIBLE
+                vElevation.visibility = View.VISIBLE
             } else {
                 tvHeaderJobRole.visibility = View.INVISIBLE
                 tvHeaderCompName.visibility = View.INVISIBLE
+                vElevation.visibility = View.INVISIBLE
             }
         }
 
         btnSubmitResume.setOnClickListener {
-            val text : String = btnSubmitResume.text.toString()
-            if (text == "Submit Resume"){
-                val intent = Intent(Intent.ACTION_GET_CONTENT)
-                intent.type = "application/pdf"
-                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-                startActivityForResult(Intent.createChooser(intent, "Select PDF"), PDF_REQUEST_CODE)
-            } else {
-                btnSubmitResume.isEnabled = false
-                btnSubmitResume.setBackgroundColor(Color.parseColor("#f06c71"))
-                btnSubmitResume.text = "Uploading..."
-                uploadPDFs(selectedFiles)
-            }
+            val intent = Intent(Intent.ACTION_GET_CONTENT)
+            intent.type = "application/pdf"
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            startActivityForResult(Intent.createChooser(intent, "Select PDF"), PDF_REQUEST_CODE)
+        }
+
+        btnUploadResume.setOnClickListener {
+            btnSubmitResume.isEnabled = false
+            btnSubmitResume.setBackgroundColor(Color.parseColor("#f06c71"))
+            btnUploadResume.isEnabled = false
+            btnUploadResume.setBackgroundColor(Color.parseColor("#f06c71"))
+            btnUploadResume.text = "Uploading..."
+            uploadPDFs(selectedFiles)
         }
     }
 
@@ -149,7 +160,9 @@ class JobReqScreenActivity : AppCompatActivity() {
             }
 
             if (selectedFiles.isNotEmpty()) {
-                btnSubmitResume.text = "Upload Resume(s)"
+                btnUploadResume.isEnabled = true
+                btnUploadResume.setBackgroundColor(Color.parseColor("#e51e26"))
+                btnSubmitResume.text = "Reselect Resume"
             }
         }
     }
@@ -159,7 +172,7 @@ class JobReqScreenActivity : AppCompatActivity() {
 
         fileUris.forEachIndexed { index, fileUri ->
             fileName = UUID.randomUUID().toString() + ".pdf"
-            val pdfRef = storageRef.child("pdfs/$fileName")
+            val pdfRef = storageRef.child("$userDocumentId/$jobId/$fileName")
 
             val uploadTask = pdfRef.putFile(fileUri)
             uploadTask.continueWithTask { task ->
@@ -221,6 +234,9 @@ class JobReqScreenActivity : AppCompatActivity() {
                 refreshSubmissions()
             },500)
 
+            btnUploadResume.setBackgroundColor(Color.parseColor("#e51e26"))
+            btnUploadResume.isEnabled = true
+            btnUploadResume.text = "Upload"
             btnSubmitResume.setBackgroundColor(Color.parseColor("#e51e26"))
             btnSubmitResume.isEnabled = true
             btnSubmitResume.text = "Submit Resume"

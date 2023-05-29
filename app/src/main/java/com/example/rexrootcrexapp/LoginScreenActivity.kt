@@ -74,8 +74,8 @@ class LoginScreenActivity : AppCompatActivity() {
             else etEmailID.background = backgroundDrawable
         }
         etPassword.setOnFocusChangeListener { v, hasFocus ->
-            if (hasFocus) etEmailID.background = focusedBackground
-            else etEmailID.background = backgroundDrawable
+            if (hasFocus) etPassword.background = focusedBackground
+            else etPassword.background = backgroundDrawable
         }
     }
 

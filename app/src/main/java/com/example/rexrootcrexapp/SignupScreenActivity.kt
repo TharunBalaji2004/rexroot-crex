@@ -162,9 +162,12 @@ class SignupScreenActivity : AppCompatActivity() {
 
     private fun addNewUser(fullname:String,emailid:String,mobilenumber:String){
         val user = hashMapOf(
-            "fullname" to fullname,
-            "emailid" to emailid,
-            "mobilenumber" to mobilenumber
+            "profiledata" to hashMapOf(
+                "fullname" to fullname,
+                "emailid" to emailid,
+                "mobilenumber" to mobilenumber
+            ),
+            "submitdata" to hashMapOf<Any,Any>()
         )
 
         mStore.collection("users").add(user)
