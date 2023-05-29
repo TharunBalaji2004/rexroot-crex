@@ -23,6 +23,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.google.firebase.firestore.SetOptions
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.UUID
 
 class JobReqScreenActivity : AppCompatActivity() {
@@ -31,7 +34,9 @@ class JobReqScreenActivity : AppCompatActivity() {
 
     private var selectedFiles = mutableListOf<Uri>()
     private var selectedFilesNames = mutableListOf<String>()
+    private var selectedUUIDFilesNames = mutableListOf<String>()
 
+    private var filePosition = 0
     private var submittedCount = 0
     private var rejectedCount = 0
     private var acceptedCount = 0
@@ -124,6 +129,7 @@ class JobReqScreenActivity : AppCompatActivity() {
         }
 
         btnSubmitResume.setOnClickListener {
+            selectedFiles = mutableListOf<Uri>()
             val intent = Intent(Intent.ACTION_GET_CONTENT)
             intent.type = "application/pdf"
             intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
@@ -136,6 +142,9 @@ class JobReqScreenActivity : AppCompatActivity() {
             btnUploadResume.isEnabled = false
             btnUploadResume.setBackgroundColor(Color.parseColor("#f06c71"))
             btnUploadResume.text = "Uploading..."
+
+            Log.d("selectedfiles","$selectedFiles")
+
             uploadPDFs(selectedFiles)
         }
     }
@@ -155,7 +164,6 @@ class JobReqScreenActivity : AppCompatActivity() {
                     val clipDataItem = clipData.getItemAt(i)
                     selectedFiles.add(clipDataItem.uri)
                     selectedFilesNames.add(getFileNameFromUri(clipDataItem.uri))
-                    Log.d("PDF UPLOAD","Uploaded file: ${getFileNameFromUri(clipDataItem.uri)}")
                 }
             }
 
@@ -174,6 +182,8 @@ class JobReqScreenActivity : AppCompatActivity() {
             fileName = UUID.randomUUID().toString() + ".pdf"
             val pdfRef = storageRef.child("$userDocumentId/$jobId/$fileName")
 
+            selectedUUIDFilesNames.add(fileName)
+
             val uploadTask = pdfRef.putFile(fileUri)
             uploadTask.continueWithTask { task ->
                 if (!task.isSuccessful) {
@@ -183,6 +193,7 @@ class JobReqScreenActivity : AppCompatActivity() {
             }.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val downloadUrl = task.result
+                    Log.d("selectedfiles","PDF Uploaded to Storage: $downloadUrl")
                     savePdfUrlToFirestore(downloadUrl.toString(), index == fileUris.size - 1)
                 } else {
                     // Handle the upload failure
@@ -194,14 +205,15 @@ class JobReqScreenActivity : AppCompatActivity() {
     private fun savePdfUrlToFirestore(downloadUrl: String, isLastFile: Boolean) {
 
         val userDocumentRef = db.collection("users").document(userDocumentId)
-        Log.d("FirestoreDB","userDocumentRef: ${userDocumentRef}")
         userDocumentRef.get().addOnSuccessListener { documentSnapshot ->
-            if (documentSnapshot.exists()){
+            if (documentSnapshot.exists()) {
 
-                val newResumeData = hashMapOf(
-                    "submitdata" to hashMapOf(
-                        jobId to hashMapOf(
-                            fileName to hashMapOf(
+                val UUIDFileName = selectedUUIDFilesNames.get(filePosition++)
+
+                val newResumeData = hashMapOf<String, Any>(
+                    "submitdata" to hashMapOf<String, Any>(
+                        jobId to hashMapOf<String, Any>(
+                            UUIDFileName to hashMapOf(
                                 "resumeUrl" to downloadUrl,
                                 "resumeStatus" to "0"
                             )
@@ -209,18 +221,20 @@ class JobReqScreenActivity : AppCompatActivity() {
                     )
                 )
 
-                userDocumentRef.set(newResumeData,SetOptions.merge())
+                userDocumentRef.set(newResumeData, SetOptions.merge())
                     .addOnSuccessListener {
-                        Log.d("FirestoreDB","Document updated successful")
+                        Log.d("FirestoreDB", "Filename: ${UUIDFileName}")
+                        Log.d("FirestoreDB", "Document added successfully: ${downloadUrl}")
+                        if (isLastFile) {
+                            Log.d("FirestoreDB", "All files uploaded and documents updated successfully")
+                        }
                     }
-                    .addOnFailureListener {
-                        Log.d("FirestoreDB","Document updated unsuccessful")
+                    .addOnFailureListener { e ->
+                        Log.d("FirestoreDB", "Document update failed: ${e.message}")
                     }
-
             } else {
-                Log.d("FirestoreDB","Document doesn't exist")
+                Log.d("FirestoreDB", "Document doesn't exist")
             }
-
         }
 
         if (isLastFile) {
@@ -232,7 +246,7 @@ class JobReqScreenActivity : AppCompatActivity() {
 
             Handler().postDelayed({
                 refreshSubmissions()
-            },500)
+            }, 500)
 
             btnUploadResume.setBackgroundColor(Color.parseColor("#e51e26"))
             btnUploadResume.isEnabled = true
