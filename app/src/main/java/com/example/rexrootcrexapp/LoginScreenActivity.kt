@@ -51,7 +51,7 @@ class LoginScreenActivity : AppCompatActivity() {
         closeKeyBoard(currView)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            window.statusBarColor = Color.parseColor("#e51e26")
+            window.statusBarColor = Color.parseColor("#000000")
         }
 
         mAuth = FirebaseAuth.getInstance()
@@ -65,6 +65,17 @@ class LoginScreenActivity : AppCompatActivity() {
         tvClickHere.setOnClickListener {
             val intent = Intent(this@LoginScreenActivity, SignupScreenActivity::class.java)
             startActivity(intent)
+        }
+
+        val backgroundDrawable = resources.getDrawable(R.drawable.bg_inputbox)
+        val focusedBackground = resources.getDrawable(R.drawable.bg_inputbox_focused)
+        etEmailID.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus) etEmailID.background = focusedBackground
+            else etEmailID.background = backgroundDrawable
+        }
+        etPassword.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus) etEmailID.background = focusedBackground
+            else etEmailID.background = backgroundDrawable
         }
     }
 

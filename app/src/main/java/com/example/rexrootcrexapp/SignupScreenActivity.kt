@@ -54,7 +54,7 @@ class SignupScreenActivity : AppCompatActivity() {
         closeKeyBoard(currView)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            window.statusBarColor = Color.parseColor("#e51e26")
+            window.statusBarColor = Color.parseColor("#000000")
         }
 
         mAuth = FirebaseAuth.getInstance()
@@ -71,6 +71,27 @@ class SignupScreenActivity : AppCompatActivity() {
             val intent = Intent(this@SignupScreenActivity,LoginScreenActivity::class.java)
             startActivity(intent)
         }
+
+        val backgroundDrawable = resources.getDrawable(R.drawable.bg_inputbox)
+        val focusedBackground = resources.getDrawable(R.drawable.bg_inputbox_focused)
+
+        etFullName.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus) etFullName.background = focusedBackground
+            else etFullName.background = backgroundDrawable
+        }
+        etEmailAddress.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus) etEmailAddress.background = focusedBackground
+            else etEmailAddress.background = backgroundDrawable
+        }
+        etMobileNumber.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus) etMobileNumber.background = focusedBackground
+            else etMobileNumber.background = backgroundDrawable
+        }
+        etPassword.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus) etPassword.background = focusedBackground
+            else etPassword.background = backgroundDrawable
+        }
+
     }
 
     private fun signUpNewUser(){

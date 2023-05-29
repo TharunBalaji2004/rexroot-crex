@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/parent_layout"
     android:orientation="vertical"
-    android:background="#e51e26"
+    android:background="@color/white"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -18,15 +18,28 @@
             android:layout_height="wrap_content"
             android:text="rexroot"
             android:textSize="50dp"
-            android:textColor="@color/white"
+            android:textColor="#e51e26"
             android:textStyle="bold">
         </TextView>
-        <TextView
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="powered by impetusON"
-            android:textColor="@color/white">
-        </TextView>
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="powered by">
+            </TextView>
+            <ImageView
+                android:layout_marginLeft="8sp"
+                android:layout_width="100dp"
+                android:layout_height="30dp"
+                android:src="@drawable/impetuson_logo_cropped">
+            </ImageView>
+
+        </LinearLayout>
+
 
     </LinearLayout>
 
@@ -54,8 +67,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Full Name"
+                    android:textStyle="bold"
                     android:layout_marginBottom="5dp"
-                    android:textColor="@color/white">
+                    android:textColor="@color/black">
                 </TextView>
 
                 <EditText
@@ -63,6 +77,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="12dp"
+                    android:defaultFocusHighlightEnabled="true"
                     android:hint="Eg: John Steve"
                     android:background="@drawable/bg_inputbox">
                 </EditText>
@@ -80,7 +95,8 @@
                     android:layout_height="wrap_content"
                     android:text="Email Address"
                     android:layout_marginBottom="5dp"
-                    android:textColor="@color/white">
+                    android:textStyle="bold"
+                    android:textColor="@color/black">
                 </TextView>
 
                 <EditText
@@ -105,7 +121,8 @@
                     android:layout_height="wrap_content"
                     android:text="Mobile Number"
                     android:layout_marginBottom="5dp"
-                    android:textColor="@color/white">
+                    android:textStyle="bold"
+                    android:textColor="@color/black">
                 </TextView>
 
                 <EditText
@@ -130,7 +147,8 @@
                     android:layout_height="wrap_content"
                     android:text="Password"
                     android:layout_marginBottom="5dp"
-                    android:textColor="@color/white">
+                    android:textStyle="bold"
+                    android:textColor="@color/black">
                 </TextView>
 
                 <EditText
@@ -156,7 +174,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="By signing up, you agree to our Terms &amp; Conditions, and Privacy Policy of our application"
-                    android:textColor="#D3D3D3">
+                    android:textColor="@color/black">
                 </TextView>
 
             </LinearLayout>
@@ -169,7 +187,7 @@
                 android:text="Sign Up"
                 android:textAllCaps="false"
                 android:textStyle="bold"
-                android:textColor="#e51e26"
+                android:textColor="@color/white"
                 android:background="@drawable/bg_button_signup">
             </androidx.appcompat.widget.AppCompatButton>
 
@@ -186,7 +204,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Are you an existing user?  "
-                android:textColor="@color/white">
+                android:textColor="@color/black">
             </TextView>
 
             <TextView
@@ -194,7 +212,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/click_here"
-                android:textColor="#D3D3D3">
+                android:textColor="#e51e26">
             </TextView>
 
         </LinearLayout>
