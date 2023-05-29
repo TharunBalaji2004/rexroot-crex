@@ -101,8 +101,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        super.onBackPressed()
-        finishAffinity()
+        if (searchView.query.toString().isEmpty()){
+            finishAffinity()
+        }
+        if (!searchView.isIconified) {
+            searchView.setQuery("", false)
+            searchView.isIconified = true
+        }
     }
 
     override fun onResume() {

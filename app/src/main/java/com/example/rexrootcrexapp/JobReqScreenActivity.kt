@@ -246,7 +246,7 @@ class JobReqScreenActivity : AppCompatActivity() {
 
             Handler().postDelayed({
                 refreshSubmissions()
-            }, 500)
+            }, 1200)
 
             btnUploadResume.setBackgroundColor(Color.parseColor("#e51e26"))
             btnUploadResume.isEnabled = true
