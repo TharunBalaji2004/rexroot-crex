@@ -1,14 +1,12 @@
 package com.example.rexrootcrexapp
 
 import android.content.Intent
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
 import android.widget.TextView
-import androidx.core.app.ActivityOptionsCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rexrootcrexapp.Data.JobReqDataClass
 import java.util.Locale
@@ -18,7 +16,7 @@ class JobReqAdapter(private val jobReqList : ArrayList<JobReqDataClass>) : Recyc
     private var filteredList: List<JobReqDataClass> = jobReqList
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): JobReqViewHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.sample_jobreqcard, parent, false)
+        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.jobreq_card, parent, false)
         return JobReqViewHolder(itemView)
     }
 

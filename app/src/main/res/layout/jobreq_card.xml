@@ -1,116 +1,107 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:background="?android:attr/selectableItemBackground"
-    android:foreground="?android:attr/selectableItemBackground"
-    android:clickable="true"
-    android:focusable="true"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="15dp">
+    android:elevation="8dp"
+    android:foreground="@drawable/ripple_effect"
+    android:layout_marginBottom="10dp"
+    android:padding="10dp">
 
-    <LinearLayout
-        android:focusable="true"
-        android:clickable="true"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:background="?android:attr/selectableItemBackground"
-        android:layout_width="match_parent"
+    <!-- Job Salary -->
+    <TextView
+        android:id="@+id/tv_priceperclosure"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1">
+        android:layout_alignParentStart="true"
+        android:layout_centerInParent="true"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:paddingRight="5dp"
+        android:text="30K"
+        android:textSize="25sp"
+        android:textStyle="bold" />
+
+    <!-- Number of Applicants -->
+    <LinearLayout
+        android:id="@+id/applicantsTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_submitted"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="S: 0"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginEnd="10dp"
-            android:layout_weight="0.3"
-            android:gravity="center">
+            android:layout_height="wrap_content">
 
             <TextView
-                android:id="@+id/tv_priceperclosure"
+                android:id="@+id/tv_rejected"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
-                android:textSize="20sp"
-                android:text="25K">
-            </TextView>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="0.6"
-            android:gravity="start"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/tv_jobrole"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textStyle="bold"
+                android:text="R: 0"
+                android:textColor="#FF0000"
                 android:textSize="18sp"
-                android:text="Full Stack Developer">
-            </TextView>
-            <TextView
-                android:id="@+id/tv_compname"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="16dp"
-                android:text="ABC Technologies">
-            </TextView>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#808080"
-                android:textSize="14sp"
-                android:text="Chennai, Tamil Nadu (On-site)">
-            </TextView>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="0.1"
-            android:gravity="center"
-            android:orientation="vertical">
+                android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/tv_accepted"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="3dp"
-                android:textStyle="bold"
+                android:layout_marginStart="5dp"
+                android:text="A: 0"
+                android:textColor="#4CBB17"
                 android:textSize="18sp"
-                android:text="S: 0">
-            </TextView>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="3dp"
-                    android:textColor="#FF0000"
-                    android:textStyle="bold"
-                    android:textSize="18sp"
-                    android:text="R: 0">
-                </TextView>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="3dp"
-                    android:textColor="#4CBB17"
-                    android:textStyle="bold"
-                    android:textSize="18sp"
-                    android:text="A: 0">
-                </TextView>
-
-            </LinearLayout>
+                android:textStyle="bold" />
 
         </LinearLayout>
 
     </LinearLayout>
 
-</androidx.cardview.widget.CardView>
+    <!-- Job Role, Company, Job Place -->
+    <LinearLayout
+        android:id="@+id/jobInfoLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
+        android:layout_toEndOf="@id/tv_priceperclosure"
+        android:layout_toStartOf="@id/applicantsTextView"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_jobrole"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Job Role"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_gravity="start"/>
+
+        <TextView
+            android:id="@+id/tv_compname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Company"
+            android:textSize="14sp"
+            android:layout_gravity="start"/>
+
+        <TextView
+            android:id="@+id/jobPlaceTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#808080"
+            android:textSize="12sp"
+            android:text="Chennai, Tamil Nadu (On-site)"
+            android:layout_gravity="start"/>
+
+    </LinearLayout>
+</RelativeLayout>

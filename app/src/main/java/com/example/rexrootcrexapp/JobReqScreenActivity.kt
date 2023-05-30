@@ -13,12 +13,17 @@ import android.os.Handler
 import android.provider.OpenableColumns
 import android.util.Log
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.ListView
+import android.widget.RelativeLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -51,18 +56,22 @@ class JobReqScreenActivity : AppCompatActivity() {
     lateinit var tvCompName : TextView
     lateinit var tvPricePerClosure : TextView
     lateinit var tvJobDesc : TextView
+    lateinit var tvShowMore : TextView
     lateinit var tvSubmitted : TextView
     lateinit var tvRejected : TextView
     lateinit var tvAccepted : TextView
     lateinit var btnSubmitResume : Button
     lateinit var btnUploadResume : Button
     lateinit var vElevation : View
+    lateinit var rlSubmitted : RelativeLayout
+    lateinit var rvSubmitted : RecyclerView
 
     private lateinit var mediaPlayer: MediaPlayer
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var userDocumentId : String
     private lateinit var jobId : String
     private lateinit var fileName : String
+    private lateinit var submissionsAdapter: SubmissionsAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,6 +92,7 @@ class JobReqScreenActivity : AppCompatActivity() {
         tvCompName = findViewById(R.id.tv_compname)
         tvPricePerClosure = findViewById(R.id.tv_priceperclosure)
         tvJobDesc = findViewById(R.id.tv_jobdesc)
+        tvShowMore= findViewById(R.id.tv_showmore)
         scrollView = findViewById(R.id.scroll_view)
         llBody = findViewById(R.id.ll_body)
         llJobTitle = findViewById(R.id.ll_jobtitle)
@@ -92,6 +102,8 @@ class JobReqScreenActivity : AppCompatActivity() {
         btnSubmitResume = findViewById(R.id.btn_submitresume)
         btnUploadResume = findViewById(R.id.btn_uploadresume)
         vElevation = findViewById(R.id.v_elevation)
+        rlSubmitted = findViewById(R.id.rl_submitted)
+        rvSubmitted = findViewById(R.id.rv_submitted)
         mediaPlayer = MediaPlayer.create(this@JobReqScreenActivity, R.raw.file_upload_success)
 
         refreshSubmissions()
@@ -105,7 +117,9 @@ class JobReqScreenActivity : AppCompatActivity() {
         tvJobRole.text = intent.getStringExtra("jobRole")
         tvCompName.text = intent.getStringExtra("compName")
         tvPricePerClosure.text = intent.getStringExtra("pricePerClosure")
-        tvJobDesc.text = intent.getStringExtra("jobDesc")
+        val jobDesc: String? = intent.getStringExtra("jobDesc")
+
+        tvJobDesc.text = jobDesc?.substring(0,150) + "..."
 
         tvHeaderJobRole.text = tvJobRole.text
         tvHeaderCompName.text = tvCompName.text
@@ -146,6 +160,32 @@ class JobReqScreenActivity : AppCompatActivity() {
             Log.d("selectedfiles","$selectedFiles")
 
             uploadPDFs(selectedFiles)
+        }
+
+        tvShowMore.setOnClickListener {
+            val text = tvShowMore.text.toString()
+            if (text == "Show more") {
+                tvShowMore.text = "Show less"
+                tvJobDesc.text = jobDesc
+            } else {
+                tvShowMore.text = "Show more"
+                tvJobDesc.text = jobDesc?.substring(0,150) + "..."
+            }
+        }
+
+        val submittedList: ArrayList<String> = arrayListOf("Resume1","Resume2","Resume3","Resume4","Resume5",
+                                                "Resume6","Resume7","Resume8","Resume9","Resume10","Resume11")
+
+        rvSubmitted.layoutManager = LinearLayoutManager(this)
+        submissionsAdapter = SubmissionsAdapter(submittedList)
+        rvSubmitted.adapter = submissionsAdapter
+
+        rlSubmitted.setOnClickListener {
+            if (rvSubmitted.visibility == View.GONE) {
+                rvSubmitted.visibility = View.VISIBLE
+            } else {
+                rvSubmitted.visibility = View.GONE
+            }
         }
     }
 
