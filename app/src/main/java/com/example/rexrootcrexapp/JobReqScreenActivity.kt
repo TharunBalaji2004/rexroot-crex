@@ -13,6 +13,7 @@ import android.os.Handler
 import android.provider.OpenableColumns
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.LinearLayout
@@ -40,6 +41,9 @@ class JobReqScreenActivity : AppCompatActivity() {
     private var selectedFiles = mutableListOf<Uri>()
     private var selectedFilesNames = mutableListOf<String>()
     private var selectedUUIDFilesNames = mutableListOf<String>()
+    private var submittedList: ArrayList<String> = arrayListOf<String>()
+    private var rejectedList: ArrayList<String> = arrayListOf<String>()
+    private var acceptedList: ArrayList<String> = arrayListOf<String>()
 
     private var filePosition = 0
     private var submittedCount = 0
@@ -64,14 +68,20 @@ class JobReqScreenActivity : AppCompatActivity() {
     lateinit var btnUploadResume : Button
     lateinit var vElevation : View
     lateinit var rlSubmitted : RelativeLayout
+    lateinit var rlRejected : RelativeLayout
+    lateinit var rlAccepted : RelativeLayout
     lateinit var rvSubmitted : RecyclerView
+    lateinit var rvRejected : RecyclerView
+    lateinit var rvAccepted : RecyclerView
 
     private lateinit var mediaPlayer: MediaPlayer
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var userDocumentId : String
     private lateinit var jobId : String
     private lateinit var fileName : String
-    private lateinit var submissionsAdapter: SubmissionsAdapter
+    private lateinit var submittedAdapter: SubmissionsAdapter
+    private lateinit var rejectedAdapter: SubmissionsAdapter
+    private lateinit var acceptedAdapter: SubmissionsAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -103,7 +113,11 @@ class JobReqScreenActivity : AppCompatActivity() {
         btnUploadResume = findViewById(R.id.btn_uploadresume)
         vElevation = findViewById(R.id.v_elevation)
         rlSubmitted = findViewById(R.id.rl_submitted)
+        rlRejected = findViewById(R.id.rl_rejected)
+        rlAccepted = findViewById(R.id.rl_accepted)
         rvSubmitted = findViewById(R.id.rv_submitted)
+        rvRejected = findViewById(R.id.rv_rejected)
+        rvAccepted = findViewById(R.id.rv_accepted)
         mediaPlayer = MediaPlayer.create(this@JobReqScreenActivity, R.raw.file_upload_success)
 
         refreshSubmissions()
@@ -173,18 +187,57 @@ class JobReqScreenActivity : AppCompatActivity() {
             }
         }
 
-        val submittedList: ArrayList<String> = arrayListOf("Resume1","Resume2","Resume3","Resume4","Resume5",
-                                                "Resume6","Resume7","Resume8","Resume9","Resume10","Resume11")
+
+        if(submittedList.size <= 4){
+            submittedList.add("No results available")
+            val layoutParams = rvSubmitted.layoutParams
+            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+            rvSubmitted.layoutParams = layoutParams
+        }
+        if(rejectedList.size <= 4){
+            rejectedList.add("No results available")
+            val layoutParams = rvRejected.layoutParams
+            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+            rvRejected.layoutParams = layoutParams
+        }
+        if(acceptedList.size <= 4){
+            acceptedList.add("No results available")
+            val layoutParams = rvAccepted.layoutParams
+            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+            rvAccepted.layoutParams = layoutParams
+        }
+
+        submittedAdapter = SubmissionsAdapter(submittedList.reversed())
+        rejectedAdapter = SubmissionsAdapter(rejectedList.reversed())
+        acceptedAdapter = SubmissionsAdapter(acceptedList.reversed())
 
         rvSubmitted.layoutManager = LinearLayoutManager(this)
-        submissionsAdapter = SubmissionsAdapter(submittedList)
-        rvSubmitted.adapter = submissionsAdapter
+        rvRejected.layoutManager = LinearLayoutManager(this)
+        rvAccepted.layoutManager = LinearLayoutManager(this)
+
+        rvSubmitted.adapter = submittedAdapter
+        rvRejected.adapter = rejectedAdapter
+        rvAccepted.adapter = acceptedAdapter
 
         rlSubmitted.setOnClickListener {
             if (rvSubmitted.visibility == View.GONE) {
                 rvSubmitted.visibility = View.VISIBLE
             } else {
                 rvSubmitted.visibility = View.GONE
+            }
+        }
+        rlRejected.setOnClickListener {
+            if (rvRejected.visibility == View.GONE) {
+                rvRejected.visibility = View.VISIBLE
+            } else {
+                rvRejected.visibility = View.GONE
+            }
+        }
+        rlAccepted.setOnClickListener {
+            if (rvAccepted.visibility == View.GONE) {
+                rvAccepted.visibility = View.VISIBLE
+            } else {
+                rvAccepted.visibility = View.GONE
             }
         }
     }
