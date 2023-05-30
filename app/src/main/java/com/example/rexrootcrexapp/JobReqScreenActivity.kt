@@ -71,8 +71,11 @@ class JobReqScreenActivity : AppCompatActivity() {
     lateinit var rlRejected : RelativeLayout
     lateinit var rlAccepted : RelativeLayout
     lateinit var rvSubmitted : RecyclerView
+    lateinit var tvSSubText : TextView
     lateinit var rvRejected : RecyclerView
+    lateinit var tvRSubText : TextView
     lateinit var rvAccepted : RecyclerView
+    lateinit var tvASubText : TextView
 
     private lateinit var mediaPlayer: MediaPlayer
     private lateinit var sharedPreferences: SharedPreferences
@@ -116,15 +119,18 @@ class JobReqScreenActivity : AppCompatActivity() {
         rlRejected = findViewById(R.id.rl_rejected)
         rlAccepted = findViewById(R.id.rl_accepted)
         rvSubmitted = findViewById(R.id.rv_submitted)
+        tvSSubText = findViewById(R.id.tv_ssubtext)
         rvRejected = findViewById(R.id.rv_rejected)
+        tvRSubText = findViewById(R.id.tv_rsubtext)
         rvAccepted = findViewById(R.id.rv_accepted)
+        tvASubText = findViewById(R.id.tv_asubtext)
         mediaPlayer = MediaPlayer.create(this@JobReqScreenActivity, R.raw.file_upload_success)
-
-        refreshSubmissions()
 
         ivExit.setOnClickListener {
             onBackPressed()
         }
+
+        refreshSubmissions()
 
         // Get data from previous Activity
         jobId = intent.getStringExtra("jobId").toString()
@@ -158,6 +164,10 @@ class JobReqScreenActivity : AppCompatActivity() {
 
         btnSubmitResume.setOnClickListener {
             selectedFiles = mutableListOf<Uri>()
+            selectedUUIDFilesNames = mutableListOf<String>()
+            selectedFilesNames = mutableListOf<String>()
+            filePosition = 0
+
             val intent = Intent(Intent.ACTION_GET_CONTENT)
             intent.type = "application/pdf"
             intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
@@ -172,6 +182,7 @@ class JobReqScreenActivity : AppCompatActivity() {
             btnUploadResume.text = "Uploading..."
 
             Log.d("selectedfiles","$selectedFiles")
+            Log.d("selectedFilesNames","$selectedFilesNames")
 
             uploadPDFs(selectedFiles)
         }
@@ -187,57 +198,55 @@ class JobReqScreenActivity : AppCompatActivity() {
             }
         }
 
-
-        if(submittedList.size <= 4){
-            submittedList.add("No results available")
-            val layoutParams = rvSubmitted.layoutParams
-            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
-            rvSubmitted.layoutParams = layoutParams
-        }
-        if(rejectedList.size <= 4){
-            rejectedList.add("No results available")
-            val layoutParams = rvRejected.layoutParams
-            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
-            rvRejected.layoutParams = layoutParams
-        }
-        if(acceptedList.size <= 4){
-            acceptedList.add("No results available")
-            val layoutParams = rvAccepted.layoutParams
-            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
-            rvAccepted.layoutParams = layoutParams
-        }
-
-        submittedAdapter = SubmissionsAdapter(submittedList.reversed())
-        rejectedAdapter = SubmissionsAdapter(rejectedList.reversed())
-        acceptedAdapter = SubmissionsAdapter(acceptedList.reversed())
-
+        submittedAdapter = SubmissionsAdapter(submittedList)
         rvSubmitted.layoutManager = LinearLayoutManager(this)
-        rvRejected.layoutManager = LinearLayoutManager(this)
-        rvAccepted.layoutManager = LinearLayoutManager(this)
-
         rvSubmitted.adapter = submittedAdapter
+        rejectedAdapter = SubmissionsAdapter(rejectedList)
+        rvRejected.layoutManager = LinearLayoutManager(this)
         rvRejected.adapter = rejectedAdapter
+        acceptedAdapter = SubmissionsAdapter(acceptedList)
+        rvAccepted.layoutManager = LinearLayoutManager(this)
         rvAccepted.adapter = acceptedAdapter
 
         rlSubmitted.setOnClickListener {
-            if (rvSubmitted.visibility == View.GONE) {
-                rvSubmitted.visibility = View.VISIBLE
-            } else {
+            if (rvSubmitted.visibility == View.VISIBLE || tvSSubText.visibility == View.VISIBLE){
                 rvSubmitted.visibility = View.GONE
+                tvSSubText.visibility = View.GONE
+            }
+            else if (submittedList.size == 0){
+                rvSubmitted.visibility = View.GONE
+                tvSSubText.visibility = View.VISIBLE
+            } else {
+                tvSSubText.visibility = View.GONE
+                rvSubmitted.visibility = View.VISIBLE
             }
         }
+
         rlRejected.setOnClickListener {
-            if (rvRejected.visibility == View.GONE) {
-                rvRejected.visibility = View.VISIBLE
-            } else {
+            if (rvRejected.visibility == View.VISIBLE || tvRSubText.visibility == View.VISIBLE){
                 rvRejected.visibility = View.GONE
+                tvRSubText.visibility = View.GONE
+            }
+            else if (rejectedList.size == 0){
+                rvRejected.visibility = View.GONE
+                tvRSubText.visibility = View.VISIBLE
+            } else {
+                tvRSubText.visibility = View.GONE
+                rvRejected.visibility = View.VISIBLE
             }
         }
+
         rlAccepted.setOnClickListener {
-            if (rvAccepted.visibility == View.GONE) {
-                rvAccepted.visibility = View.VISIBLE
-            } else {
+            if (rvAccepted.visibility == View.VISIBLE || tvASubText.visibility == View.VISIBLE){
                 rvAccepted.visibility = View.GONE
+                tvASubText.visibility = View.GONE
+            }
+            else if (acceptedList.size == 0){
+                rvAccepted.visibility = View.GONE
+                tvASubText.visibility = View.VISIBLE
+            } else {
+                tvASubText.visibility = View.GONE
+                rvAccepted.visibility = View.VISIBLE
             }
         }
     }
@@ -248,7 +257,6 @@ class JobReqScreenActivity : AppCompatActivity() {
             data?.data?.let { singleUri ->
                 // Handle single file selection
                 selectedFiles.add(singleUri)
-                selectedFilesNames.add(getFileNameFromUri(singleUri))
             }
 
             data?.clipData?.let { clipData ->
@@ -256,7 +264,6 @@ class JobReqScreenActivity : AppCompatActivity() {
                 for (i in 0 until clipData.itemCount) {
                     val clipDataItem = clipData.getItemAt(i)
                     selectedFiles.add(clipDataItem.uri)
-                    selectedFilesNames.add(getFileNameFromUri(clipDataItem.uri))
                 }
             }
 
@@ -276,6 +283,8 @@ class JobReqScreenActivity : AppCompatActivity() {
             val pdfRef = storageRef.child("$userDocumentId/$jobId/$fileName")
 
             selectedUUIDFilesNames.add(fileName)
+            selectedFilesNames.add(getFileNameFromUri(fileUri))
+
 
             val uploadTask = pdfRef.putFile(fileUri)
             uploadTask.continueWithTask { task ->
@@ -286,7 +295,6 @@ class JobReqScreenActivity : AppCompatActivity() {
             }.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val downloadUrl = task.result
-                    Log.d("selectedfiles","PDF Uploaded to Storage: $downloadUrl")
                     savePdfUrlToFirestore(downloadUrl.toString(), index == fileUris.size - 1)
                 } else {
                     // Handle the upload failure
@@ -301,18 +309,19 @@ class JobReqScreenActivity : AppCompatActivity() {
         userDocumentRef.get().addOnSuccessListener { documentSnapshot ->
             if (documentSnapshot.exists()) {
 
-                val UUIDFileName = selectedUUIDFilesNames.get(filePosition++)
-
+                val UUIDFileName = selectedUUIDFilesNames[filePosition]
                 val newResumeData = hashMapOf<String, Any>(
                     "submitdata" to hashMapOf<String, Any>(
                         jobId to hashMapOf<String, Any>(
                             UUIDFileName to hashMapOf(
+                                "resumeName" to selectedFilesNames[filePosition],
                                 "resumeUrl" to downloadUrl,
                                 "resumeStatus" to "0"
                             )
                         )
                     )
                 )
+                filePosition++
 
                 userDocumentRef.set(newResumeData, SetOptions.merge())
                     .addOnSuccessListener {
@@ -333,9 +342,6 @@ class JobReqScreenActivity : AppCompatActivity() {
         if (isLastFile) {
             mediaPlayer.start()
             Toast.makeText(this@JobReqScreenActivity, "PDF(s) Uploaded Successfully!!", Toast.LENGTH_LONG).show()
-
-            selectedFiles = mutableListOf<Uri>()
-            selectedFilesNames = mutableListOf<String>()
 
             Handler().postDelayed({
                 refreshSubmissions()
@@ -373,6 +379,10 @@ class JobReqScreenActivity : AppCompatActivity() {
     private fun refreshSubmissions() {
         val userDocumentRef = db.collection("users").document(userDocumentId)
 
+        submittedList = arrayListOf<String>()
+        rejectedList = arrayListOf<String>()
+        acceptedList = arrayListOf<String>()
+
         submittedCount = 0
         rejectedCount = 0
         acceptedCount = 0
@@ -393,12 +403,24 @@ class JobReqScreenActivity : AppCompatActivity() {
 
                             val resumeData = uploadedResumes[itemResume] as? Map<*, *>
                             val resumeStatus = resumeData?.get("resumeStatus")
+                            val resumeName = resumeData?.get("resumeName").toString()
 
-                            if (resumeStatus == "0") submittedCount++
-                            if (resumeStatus == "1") acceptedCount++
-                            if (resumeStatus == "-1") rejectedCount++
+                            if (resumeStatus == "0") {
+                                submittedList.add(resumeName)
+                                submittedCount++
+                            }
+                            if (resumeStatus == "1") {
+                                acceptedList.add(resumeName)
+                                acceptedCount++
+                            }
+                            if (resumeStatus == "-1") {
+                                rejectedList.add(resumeName)
+                                rejectedCount++
+                            }
 
-                            Log.d("submittedCount","$submittedCount")
+                            Log.d("submittedList","$submittedList")
+                            Log.d("rejectedList","$rejectedList")
+                            Log.d("acceptedList","$acceptedList")
 
                             resumeProcessedCount++
 
@@ -406,6 +428,10 @@ class JobReqScreenActivity : AppCompatActivity() {
                                 tvSubmitted.text = submittedCount.toString()
                                 tvRejected.text = rejectedCount.toString()
                                 tvAccepted.text = acceptedCount.toString()
+
+                                submittedAdapter.notifyDataSetChanged()
+                                rejectedAdapter.notifyDataSetChanged()
+                                acceptedAdapter.notifyDataSetChanged()
                             }
                         }
                     }
@@ -414,7 +440,5 @@ class JobReqScreenActivity : AppCompatActivity() {
                 // Document does not exist
             }
         }
-
-
     }
 }
