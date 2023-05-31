@@ -61,7 +61,7 @@ class JobReqAdapter(private val jobReqList : ArrayList<JobReqDataClass>) : Recyc
         fun bind(item: JobReqDataClass) {
             jobRole.text = item.jobRole
             compName.text = item.companyName
-            pricePerClosure.text = item.pricePerClosure
+            pricePerClosure.text = "₹" + item.pricePerClosure
 
             itemView.setOnClickListener {
                 val context = itemView.context

@@ -32,6 +32,9 @@ import com.google.firebase.firestore.SetOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.UUID
 
 class JobReqScreenActivity : AppCompatActivity() {
@@ -279,8 +282,8 @@ class JobReqScreenActivity : AppCompatActivity() {
         val storageRef = Firebase.storage.reference
 
         fileUris.forEachIndexed { index, fileUri ->
-            fileName = UUID.randomUUID().toString() + ".pdf"
-            val pdfRef = storageRef.child("$userDocumentId/$jobId/$fileName")
+            fileName = UUID.randomUUID().toString()
+            val pdfRef = storageRef.child("$userDocumentId/$jobId/${fileName}.pdf")
 
             selectedUUIDFilesNames.add(fileName)
             selectedFilesNames.add(getFileNameFromUri(fileUri))
@@ -306,14 +309,24 @@ class JobReqScreenActivity : AppCompatActivity() {
     private fun savePdfUrlToFirestore(downloadUrl: String, isLastFile: Boolean) {
 
         val userDocumentRef = db.collection("users").document(userDocumentId)
+
+
+
         userDocumentRef.get().addOnSuccessListener { documentSnapshot ->
             if (documentSnapshot.exists()) {
 
+                val timeFormat = Date()
+                val dateFormat = SimpleDateFormat("HHmmss", Locale.getDefault())
+                val currTime = dateFormat.format(timeFormat)
+
                 val UUIDFileName = selectedUUIDFilesNames[filePosition]
+                val fileId = currTime
+
                 val newResumeData = hashMapOf<String, Any>(
                     "submitdata" to hashMapOf<String, Any>(
                         jobId to hashMapOf<String, Any>(
-                            UUIDFileName to hashMapOf(
+                            fileId+UUIDFileName to hashMapOf(
+                                "resumeId" to UUIDFileName,
                                 "resumeName" to selectedFilesNames[filePosition],
                                 "resumeUrl" to downloadUrl,
                                 "resumeStatus" to "0"
@@ -321,6 +334,7 @@ class JobReqScreenActivity : AppCompatActivity() {
                         )
                     )
                 )
+
                 filePosition++
 
                 userDocumentRef.set(newResumeData, SetOptions.merge())
@@ -379,10 +393,6 @@ class JobReqScreenActivity : AppCompatActivity() {
     private fun refreshSubmissions() {
         val userDocumentRef = db.collection("users").document(userDocumentId)
 
-        submittedList = arrayListOf<String>()
-        rejectedList = arrayListOf<String>()
-        acceptedList = arrayListOf<String>()
-
         submittedCount = 0
         rejectedCount = 0
         acceptedCount = 0
@@ -432,6 +442,8 @@ class JobReqScreenActivity : AppCompatActivity() {
                                 submittedAdapter.notifyDataSetChanged()
                                 rejectedAdapter.notifyDataSetChanged()
                                 acceptedAdapter.notifyDataSetChanged()
+
+
                             }
                         }
                     }
