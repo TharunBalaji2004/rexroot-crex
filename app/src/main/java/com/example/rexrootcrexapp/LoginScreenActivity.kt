@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
-import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -13,16 +12,12 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.LinearLayout
-import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
-import com.google.android.material.internal.ViewUtils.hideKeyboard
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 
 class LoginScreenActivity : AppCompatActivity() {
 
@@ -48,7 +43,7 @@ class LoginScreenActivity : AppCompatActivity() {
         setContentView(R.layout.login_screen)
 
         val currView = findViewById<View>(android.R.id.content)
-        closeKeyBoard(currView)
+        closeKeyBoard()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             window.statusBarColor = Color.parseColor("#000000")
@@ -100,6 +95,8 @@ class LoginScreenActivity : AppCompatActivity() {
                                 if (task.isSuccessful) {
                                     Log.d("FirebaseAuth", "(SUCCESSFUL) Account Login")
 
+                                    findUsersDocumentRef(userEmailID)
+
                                     progressBar.visibility = View.INVISIBLE
                                     Toast.makeText(
                                         this@LoginScreenActivity,
@@ -108,6 +105,8 @@ class LoginScreenActivity : AppCompatActivity() {
                                     ).show()
 
                                     val user = mAuth.currentUser
+                                    Log.d("currentUser", user.toString())
+
                                     editor.putBoolean("isLoggedIn",true)
                                     editor.putString("userEmailID",userEmailID)
                                     editor.commit()
@@ -182,7 +181,30 @@ class LoginScreenActivity : AppCompatActivity() {
         return flag
     }
 
-    private fun closeKeyBoard(view: View) {
+    private fun findUsersDocumentRef(userEmailID: String) {
+        val db = FirebaseFirestore.getInstance()
+        val collectionRef = db.collection("users")
+
+        collectionRef
+            .whereEqualTo("profiledata.emailid", userEmailID)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    val document = querySnapshot.documents[0]
+                    editor.putString("userDocumentId", document.id)
+                    Log.d("userDocumentId (LOGIN)","userDocumentId: ${document.id}")
+                    editor.commit()
+                } else {
+                    Log.d("FirestoreDB","Profile Data not found")
+                }
+            }
+            .addOnFailureListener { exception ->
+                // Error occurred
+            }
+
+    }
+
+    private fun closeKeyBoard() {
         parentLayout.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_DOWN) {
                 val view = currentFocus
@@ -200,6 +222,5 @@ class LoginScreenActivity : AppCompatActivity() {
         super.onBackPressed()
         finishAffinity()
     }
-
 
 }

@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.main_screen)
 
         sharedPreferences = getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
-        userDocumentId = sharedPreferences.getString("userDocumentId","").toString()
+
         recyclerView = findViewById(R.id.rv_jobreq)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -77,11 +77,7 @@ class MainActivity : AppCompatActivity() {
 
         val firebaseDB = FirebaseDatabase.getInstance().getReference("root")
         val query = firebaseDB.orderByKey()
-
-        val sharedPreferences = getSharedPreferences("UserPreferences",Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
-
-        findUsersDocumentRef()
 
         ivLogOut.setOnClickListener {
             editor.putBoolean("isLoggedIn",false)
@@ -173,7 +169,9 @@ class MainActivity : AppCompatActivity() {
         val storageRef = Firebase.storage.reference
 
         jobId = sharedPreferences.getString("jobId","").toString()
+        userDocumentId = sharedPreferences.getString("userDocumentId","").toString()
 
+        Log.d("userDocumentId",userDocumentId)
 
         fileUris.forEachIndexed { index, fileUri ->
             fileName = UUID.randomUUID().toString()
@@ -181,6 +179,8 @@ class MainActivity : AppCompatActivity() {
 
             selectedUUIDFilesNames.add(fileName)
             selectedFilesNames.add(getFileNameFromUri(fileUri))
+
+            Log.d("selectedFilesNames","$selectedFilesNames")
 
             val uploadTask = pdfRef.putFile(fileUri)
             uploadTask.continueWithTask { task ->
@@ -200,6 +200,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun savePdfUrlToFirestore(downloadUrl: String, isLastFile: Boolean) {
+
+        Log.d("savepdfurltofirestore", userDocumentId)
 
         val userDocumentRef = db.collection("users").document(userDocumentId)
         jobId = sharedPreferences.getString("jobId","").toString()
@@ -277,36 +279,6 @@ class MainActivity : AppCompatActivity() {
             fileName = uri.lastPathSegment
         }
         return fileName ?: "N/A"
-    }
-
-    private fun findUsersDocumentRef() {
-        val db = FirebaseFirestore.getInstance()
-
-        val collectionRef = db.collection("users")
-
-        val sharedPreferences = getSharedPreferences("UserPreferences",Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-
-        val email = sharedPreferences.getString("userEmailID","")
-        Log.d("FirestoreDB","UserEmail: ${email}")
-
-        collectionRef
-            .whereEqualTo("profiledata.emailid", email)
-            .get()
-            .addOnSuccessListener { querySnapshot ->
-                if (!querySnapshot.isEmpty) {
-                    val document = querySnapshot.documents[0]
-                    editor.putString("userDocumentId", document.id)
-                    Log.d("userDocumentId","userDocumentId: ${document.id}")
-                    editor.commit()
-                } else {
-                    Log.d("FirestoreDB","Profile Data not found")
-                }
-            }
-            .addOnFailureListener { exception ->
-                // Error occurred
-            }
-
     }
 
     override fun onBackPressed() {

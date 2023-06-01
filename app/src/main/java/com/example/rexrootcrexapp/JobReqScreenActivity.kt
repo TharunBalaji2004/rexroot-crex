@@ -310,8 +310,6 @@ class JobReqScreenActivity : AppCompatActivity() {
 
         val userDocumentRef = db.collection("users").document(userDocumentId)
 
-
-
         userDocumentRef.get().addOnSuccessListener { documentSnapshot ->
             if (documentSnapshot.exists()) {
 
