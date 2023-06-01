@@ -86,12 +86,14 @@ class JobReqAdapter(private val jobReqList : ArrayList<JobReqDataClass>, private
         val pricePerClosure: TextView = itemView.findViewById(R.id.tv_priceperclosure)
         val btnSubmitResume: LinearLayout = itemView.findViewById(R.id.btn_submitresume)
         val tvButtonText: TextView = itemView.findViewById(R.id.tv_buttontext)
+        val tvJobSubText: TextView = itemView.findViewById(R.id.tv_jobsubtext)
 
         fun bind(item: JobReqDataClass) {
             jobRole.text = item.jobRole
             compName.text = item.companyName
             pricePerClosure.text = "₹" + item.pricePerClosure
             jobSkills.text = item.jobSkills
+            tvJobSubText.text = "${item.companyLocation} (${item.jobType})"
 
             itemView.setOnClickListener {
                 val context = itemView.context
