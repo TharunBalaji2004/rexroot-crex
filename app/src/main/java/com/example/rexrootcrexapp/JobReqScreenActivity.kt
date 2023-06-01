@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.provider.OpenableColumns
 import android.util.Log
 import android.view.View
@@ -18,6 +19,7 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ListView
+import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -82,6 +84,9 @@ class JobReqScreenActivity : AppCompatActivity() {
     lateinit var tvRSubText : TextView
     lateinit var rvAccepted : RecyclerView
     lateinit var tvASubText : TextView
+    lateinit var pgSubmissions : ProgressBar
+    lateinit var llSubmissionsRow1 : LinearLayout
+    lateinit var llSubmissionsRow2 : LinearLayout
 
     private lateinit var mediaPlayer: MediaPlayer
     private lateinit var sharedPreferences: SharedPreferences
@@ -135,6 +140,9 @@ class JobReqScreenActivity : AppCompatActivity() {
         tvRSubText = findViewById(R.id.tv_rsubtext)
         rvAccepted = findViewById(R.id.rv_accepted)
         tvASubText = findViewById(R.id.tv_asubtext)
+        pgSubmissions = findViewById(R.id.pg_submissions)
+        llSubmissionsRow1 = findViewById(R.id.ll_submissions_row1)
+        llSubmissionsRow2 = findViewById(R.id.ll_submissions_row2)
         mediaPlayer = MediaPlayer.create(this@JobReqScreenActivity, R.raw.file_upload_success)
 
         ivExit.setOnClickListener {
@@ -372,9 +380,9 @@ class JobReqScreenActivity : AppCompatActivity() {
             mediaPlayer.start()
             Toast.makeText(this@JobReqScreenActivity, "PDF(s) Uploaded Successfully!!", Toast.LENGTH_LONG).show()
 
-            Handler().postDelayed({
+            Handler(Looper.getMainLooper()).postDelayed({
                 refreshSubmissions()
-            }, 1200)
+            }, 2000)
 
             btnUploadResume.setBackgroundColor(Color.parseColor("#e51e26"))
             btnUploadResume.isEnabled = true
@@ -406,6 +414,10 @@ class JobReqScreenActivity : AppCompatActivity() {
     }
 
     private fun refreshSubmissions() {
+        llSubmissionsRow1.visibility = View.GONE
+        llSubmissionsRow2.visibility = View.GONE
+        pgSubmissions.visibility = View.VISIBLE
+
         val userDocumentRef = db.collection("users").document(userDocumentId)
 
         submittedCount = 0
@@ -458,7 +470,9 @@ class JobReqScreenActivity : AppCompatActivity() {
                                 rejectedAdapter.notifyDataSetChanged()
                                 acceptedAdapter.notifyDataSetChanged()
 
-
+                                pgSubmissions.visibility = View.GONE
+                                llSubmissionsRow1.visibility = View.VISIBLE
+                                llSubmissionsRow2.visibility = View.VISIBLE
                             }
                         }
                     }

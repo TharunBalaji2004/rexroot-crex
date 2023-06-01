@@ -264,18 +264,27 @@
                     android:text="Your submissions">
                 </TextView>
 
-                <LinearLayout
-                    android:id="@+id/applicantsTextView"
+                <RelativeLayout
+                    android:id="@+id/ll_submissions"
                     android:padding="5dp"
                     android:background="#ededed"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:orientation="vertical">
+                    android:layout_height="wrap_content">
+
+                    <ProgressBar
+                        android:id="@+id/pg_submissions"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:visibility="visible">
+                    </ProgressBar>
 
                     <LinearLayout
+                        android:id="@+id/ll_submissions_row1"
+                        android:layout_centerHorizontal="true"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:visibility="gone">
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -297,8 +306,12 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/ll_submissions_row2"
+                        android:layout_below="@+id/ll_submissions_row1"
+                        android:layout_centerHorizontal="true"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:visibility="gone">
 
                         <LinearLayout
                             android:layout_width="wrap_content"
@@ -351,7 +364,7 @@
 
                     </LinearLayout>
 
-                </LinearLayout>
+                </RelativeLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
