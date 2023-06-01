@@ -62,6 +62,9 @@ class JobReqScreenActivity : AppCompatActivity() {
     lateinit var tvJobRole : TextView
     lateinit var tvCompName : TextView
     lateinit var tvPricePerClosure : TextView
+    lateinit var tvCompLocation : TextView
+    lateinit var tvJobType : TextView
+    lateinit var tvJobSkills : TextView
     lateinit var tvJobDesc : TextView
     lateinit var tvShowMore : TextView
     lateinit var tvSubmitted : TextView
@@ -107,6 +110,11 @@ class JobReqScreenActivity : AppCompatActivity() {
         tvJobRole = findViewById(R.id.tv_jobrole)
         tvCompName = findViewById(R.id.tv_compname)
         tvPricePerClosure = findViewById(R.id.tv_priceperclosure)
+
+        tvCompLocation = findViewById(R.id.tv_companylocation)
+        tvJobType = findViewById(R.id.tv_jobtype)
+        tvJobSkills = findViewById(R.id.tv_jobskills)
+
         tvJobDesc = findViewById(R.id.tv_jobdesc)
         tvShowMore= findViewById(R.id.tv_showmore)
         scrollView = findViewById(R.id.scroll_view)
@@ -140,9 +148,18 @@ class JobReqScreenActivity : AppCompatActivity() {
         tvJobRole.text = intent.getStringExtra("jobRole")
         tvCompName.text = intent.getStringExtra("compName")
         tvPricePerClosure.text = intent.getStringExtra("pricePerClosure")
+        tvCompLocation.text = intent.getStringExtra("compLocation")
+        tvJobType.text = intent.getStringExtra("jobType")
+        tvJobSkills.text = intent.getStringExtra("jobSkills")
         val jobDesc: String? = intent.getStringExtra("jobDesc")
 
-        tvJobDesc.text = jobDesc?.substring(0,150) + "..."
+
+        if (tvJobDesc.text.length >= 150) {
+            tvJobDesc.text = jobDesc?.substring(0,150) + "..."
+        } else {
+            tvJobDesc.text = jobDesc
+            tvShowMore.visibility = View.GONE
+        }
 
         tvHeaderJobRole.text = tvJobRole.text
         tvHeaderCompName.text = tvCompName.text
