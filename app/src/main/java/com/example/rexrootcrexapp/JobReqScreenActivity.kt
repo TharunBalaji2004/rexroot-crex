@@ -380,9 +380,7 @@ class JobReqScreenActivity : AppCompatActivity() {
             mediaPlayer.start()
             Toast.makeText(this@JobReqScreenActivity, "PDF(s) Uploaded Successfully!!", Toast.LENGTH_LONG).show()
 
-            Handler(Looper.getMainLooper()).postDelayed({
-                refreshSubmissions()
-            }, 2000)
+            refreshSubmissions()
 
             btnUploadResume.setBackgroundColor(Color.parseColor("#e51e26"))
             btnUploadResume.isEnabled = true
@@ -433,6 +431,8 @@ class JobReqScreenActivity : AppCompatActivity() {
                 if (submitData != null) {
                     val uploadedResumes = submitData[jobId] as? Map<*, *>
 
+                    Log.d("uploadedResumes", uploadedResumes.toString())
+
                     if (uploadedResumes != null) {
                         var resumeProcessedCount = 0
 
@@ -466,20 +466,24 @@ class JobReqScreenActivity : AppCompatActivity() {
                                 tvRejected.text = rejectedCount.toString()
                                 tvAccepted.text = acceptedCount.toString()
 
+
                                 submittedAdapter.notifyDataSetChanged()
                                 rejectedAdapter.notifyDataSetChanged()
                                 acceptedAdapter.notifyDataSetChanged()
 
-                                pgSubmissions.visibility = View.GONE
-                                llSubmissionsRow1.visibility = View.VISIBLE
-                                llSubmissionsRow2.visibility = View.VISIBLE
                             }
                         }
                     }
                 }
             } else {
-                // Document does not exist
+                 // Document not exists
             }
         }
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            pgSubmissions.visibility = View.GONE
+            llSubmissionsRow1.visibility = View.VISIBLE
+            llSubmissionsRow2.visibility = View.VISIBLE
+        }, 2000)
     }
 }
