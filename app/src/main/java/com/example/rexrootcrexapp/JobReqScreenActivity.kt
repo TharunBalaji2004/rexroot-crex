@@ -27,6 +27,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -84,9 +85,12 @@ class JobReqScreenActivity : AppCompatActivity() {
     lateinit var tvRSubText : TextView
     lateinit var rvAccepted : RecyclerView
     lateinit var tvASubText : TextView
-    lateinit var pgSubmissions : ProgressBar
-    lateinit var llSubmissionsRow1 : LinearLayout
-    lateinit var llSubmissionsRow2 : LinearLayout
+    lateinit var shimmerSubmitted : ShimmerFrameLayout
+    lateinit var shimmerRejected : ShimmerFrameLayout
+    lateinit var shimmerAccepted : ShimmerFrameLayout
+    lateinit var llSubmitted : LinearLayout
+    lateinit var llRejected : LinearLayout
+    lateinit var llAccepted : LinearLayout
 
     private lateinit var mediaPlayer: MediaPlayer
     private lateinit var sharedPreferences: SharedPreferences
@@ -140,9 +144,15 @@ class JobReqScreenActivity : AppCompatActivity() {
         tvRSubText = findViewById(R.id.tv_rsubtext)
         rvAccepted = findViewById(R.id.rv_accepted)
         tvASubText = findViewById(R.id.tv_asubtext)
-        pgSubmissions = findViewById(R.id.pg_submissions)
-        llSubmissionsRow1 = findViewById(R.id.ll_submissions_row1)
-        llSubmissionsRow2 = findViewById(R.id.ll_submissions_row2)
+
+        shimmerSubmitted = findViewById(R.id.shimmer_submitted)
+        shimmerRejected = findViewById(R.id.shimmer_rejected)
+        shimmerAccepted = findViewById(R.id.shimmer_accepted)
+
+        llSubmitted = findViewById(R.id.ll_submitted)
+        llRejected = findViewById(R.id.ll_rejected)
+        llAccepted = findViewById(R.id.ll_accepted)
+
         mediaPlayer = MediaPlayer.create(this@JobReqScreenActivity, R.raw.file_upload_success)
 
         ivExit.setOnClickListener {
@@ -345,6 +355,7 @@ class JobReqScreenActivity : AppCompatActivity() {
                 val UUIDFileName = selectedUUIDFilesNames[filePosition]
                 val fileId = currTime
 
+
                 val newResumeData = hashMapOf<String, Any>(
                     "submitdata" to hashMapOf<String, Any>(
                         jobId to hashMapOf<String, Any>(
@@ -371,16 +382,20 @@ class JobReqScreenActivity : AppCompatActivity() {
                     .addOnFailureListener { e ->
                         Log.d("FirestoreDB", "Document update failed: ${e.message}")
                     }
+
             } else {
                 Log.d("FirestoreDB", "Document doesn't exist")
             }
         }
 
         if (isLastFile) {
+
+            Handler(Looper.getMainLooper()).postDelayed({
+                refreshSubmissions()
+            },500)
+
             mediaPlayer.start()
             Toast.makeText(this@JobReqScreenActivity, "PDF(s) Uploaded Successfully!!", Toast.LENGTH_LONG).show()
-
-            refreshSubmissions()
 
             btnUploadResume.setBackgroundColor(Color.parseColor("#e51e26"))
             btnUploadResume.isEnabled = true
@@ -412,9 +427,17 @@ class JobReqScreenActivity : AppCompatActivity() {
     }
 
     private fun refreshSubmissions() {
-        llSubmissionsRow1.visibility = View.GONE
-        llSubmissionsRow2.visibility = View.GONE
-        pgSubmissions.visibility = View.VISIBLE
+        shimmerSubmitted.visibility = View.VISIBLE
+        shimmerAccepted.visibility = View.VISIBLE
+        shimmerRejected.visibility = View.VISIBLE
+
+        llSubmitted.visibility = View.GONE
+        llAccepted.visibility = View.GONE
+        llRejected.visibility = View.GONE
+
+        shimmerSubmitted.startShimmer()
+        shimmerAccepted.startShimmer()
+        shimmerRejected.startShimmer()
 
         val userDocumentRef = db.collection("users").document(userDocumentId)
 
@@ -481,9 +504,22 @@ class JobReqScreenActivity : AppCompatActivity() {
         }
 
         Handler(Looper.getMainLooper()).postDelayed({
-            pgSubmissions.visibility = View.GONE
-            llSubmissionsRow1.visibility = View.VISIBLE
-            llSubmissionsRow2.visibility = View.VISIBLE
-        }, 2000)
+            shimmerSubmitted.stopShimmer()
+            shimmerAccepted.stopShimmer()
+            shimmerRejected.stopShimmer()
+
+            shimmerSubmitted.visibility = View.GONE
+            shimmerAccepted.visibility = View.GONE
+            shimmerRejected.visibility = View.GONE
+
+            llSubmitted.visibility = View.VISIBLE
+            llAccepted.visibility = View.VISIBLE
+            llRejected.visibility = View.VISIBLE
+
+            Log.d("submittedCount", submittedCount.toString())
+            Log.d("rejectedCount", rejectedCount.toString())
+            Log.d("acceptedCount", acceptedCount.toString())
+
+        }, 4000)
     }
 }
