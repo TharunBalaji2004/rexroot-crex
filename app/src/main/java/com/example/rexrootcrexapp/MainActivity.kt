@@ -65,6 +65,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_screen)
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            window.statusBarColor = Color.parseColor("#000000")
+        }
+
         sharedPreferences = getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
 
         recyclerView = findViewById(R.id.rv_jobreq)
@@ -80,10 +84,7 @@ class MainActivity : AppCompatActivity() {
         val editor = sharedPreferences.edit()
 
         ivLogOut.setOnClickListener {
-            editor.putBoolean("isLoggedIn",false)
-            editor.commit()
-
-            val intent = Intent(this@MainActivity,LoginScreenActivity::class.java)
+            val intent = Intent(this@MainActivity,MyProfileScreenActivity::class.java)
             startActivity(intent)
         }
 

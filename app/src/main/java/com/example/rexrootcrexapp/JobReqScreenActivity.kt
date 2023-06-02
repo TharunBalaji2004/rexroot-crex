@@ -520,6 +520,6 @@ class JobReqScreenActivity : AppCompatActivity() {
             Log.d("rejectedCount", rejectedCount.toString())
             Log.d("acceptedCount", acceptedCount.toString())
 
-        }, 4000)
+        }, 3000)
     }
 }

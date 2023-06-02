@@ -21,6 +21,9 @@ android {
     packagingOptions {
         exclude("androidsupportmultidexversion.txt")
     }
+    viewBinding {
+        enable = true
+    }
 
     buildTypes {
         release {

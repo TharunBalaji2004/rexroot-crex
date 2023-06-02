@@ -50,6 +50,12 @@
             android:exported="true">
         </activity>
 
+        <activity
+            android:name=".MyProfileScreenActivity"
+            android:exported="true">
+        </activity>
+
+
     </application>
 
 </manifest>

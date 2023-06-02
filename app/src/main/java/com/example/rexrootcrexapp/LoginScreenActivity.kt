@@ -37,6 +37,7 @@ class LoginScreenActivity : AppCompatActivity() {
     private lateinit var mAuth: FirebaseAuth
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var editor: SharedPreferences.Editor
+    private val db = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,6 +97,7 @@ class LoginScreenActivity : AppCompatActivity() {
                                     Log.d("FirebaseAuth", "(SUCCESSFUL) Account Login")
 
                                     findUsersDocumentRef(userEmailID)
+                                    getProfileData()
 
                                     progressBar.visibility = View.INVISIBLE
                                     Toast.makeText(
@@ -201,7 +203,6 @@ class LoginScreenActivity : AppCompatActivity() {
             .addOnFailureListener { exception ->
                 // Error occurred
             }
-
     }
 
     private fun closeKeyBoard() {
@@ -218,9 +219,37 @@ class LoginScreenActivity : AppCompatActivity() {
         }
     }
 
+    private fun getProfileData() {
+        val userDocumentId: String? = sharedPreferences.getString("userDocumentId","")
+        val userDocumentRef = userDocumentId?.let { db.collection("users").document(it) }
+
+        Log.d("userDocumentId (LOGIN)",userDocumentId.toString())
+
+        if (userDocumentRef != null) {
+            userDocumentRef.get().addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    val profileData = documentSnapshot.get("profiledata") as? Map<*,*>
+                    Log.d("profiledata",profileData.toString())
+
+                    val emailId: Any? = profileData?.get("emailid")
+                    val fullName: Any? = profileData?.get("fullname")
+                    val mobileNumber: Any? = profileData?.get("mobilenumber")
+
+                    editor.putString("emailId",emailId.toString())
+                    editor.putString("fullName",fullName.toString())
+                    editor.putString("mobileNumber",mobileNumber.toString())
+                    editor.commit()
+                } else {
+                    Log.d("FirestoreDB","Document Snapshot does not exists")
+                }
+            }
+        } else {
+            // userdocument does not exist
+        }
+    }
+
     override fun onBackPressed() {
         super.onBackPressed()
         finishAffinity()
     }
-
 }
