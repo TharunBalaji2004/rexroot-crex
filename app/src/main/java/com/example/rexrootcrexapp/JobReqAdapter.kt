@@ -82,14 +82,18 @@ class JobReqAdapter(private val jobReqList : ArrayList<JobReqDataClass>, private
     inner class JobReqViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val jobRole: TextView = itemView.findViewById(R.id.tv_jobrole)
         val compName: TextView = itemView.findViewById(R.id.tv_compname)
+        val jobSkills: TextView = itemView.findViewById(R.id.tv_jobskills)
         val pricePerClosure: TextView = itemView.findViewById(R.id.tv_priceperclosure)
         val btnSubmitResume: LinearLayout = itemView.findViewById(R.id.btn_submitresume)
         val tvButtonText: TextView = itemView.findViewById(R.id.tv_buttontext)
+        val tvJobSubText: TextView = itemView.findViewById(R.id.tv_jobsubtext)
 
         fun bind(item: JobReqDataClass) {
             jobRole.text = item.jobRole
             compName.text = item.companyName
             pricePerClosure.text = "₹" + item.pricePerClosure
+            jobSkills.text = item.jobSkills
+            tvJobSubText.text = "${item.companyLocation} (${item.jobType})"
 
             itemView.setOnClickListener {
                 val context = itemView.context
@@ -98,6 +102,9 @@ class JobReqAdapter(private val jobReqList : ArrayList<JobReqDataClass>, private
                 intent.putExtra("jobId",item.jobId)
                 intent.putExtra("jobRole", item.jobRole)
                 intent.putExtra("compName", item.companyName)
+                intent.putExtra("compLocation", item.companyLocation)
+                intent.putExtra("jobType", item.jobType)
+                intent.putExtra("jobSkills", item.jobSkills)
                 intent.putExtra("pricePerClosure", item.pricePerClosure)
                 intent.putExtra("jobDesc", item.jobDesc)
 

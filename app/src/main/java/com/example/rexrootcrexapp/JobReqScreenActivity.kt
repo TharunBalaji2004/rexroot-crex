@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.provider.OpenableColumns
 import android.util.Log
 import android.view.View
@@ -18,6 +19,7 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ListView
+import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -25,6 +27,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -62,6 +65,9 @@ class JobReqScreenActivity : AppCompatActivity() {
     lateinit var tvJobRole : TextView
     lateinit var tvCompName : TextView
     lateinit var tvPricePerClosure : TextView
+    lateinit var tvCompLocation : TextView
+    lateinit var tvJobType : TextView
+    lateinit var tvJobSkills : TextView
     lateinit var tvJobDesc : TextView
     lateinit var tvShowMore : TextView
     lateinit var tvSubmitted : TextView
@@ -79,6 +85,12 @@ class JobReqScreenActivity : AppCompatActivity() {
     lateinit var tvRSubText : TextView
     lateinit var rvAccepted : RecyclerView
     lateinit var tvASubText : TextView
+    lateinit var shimmerSubmitted : ShimmerFrameLayout
+    lateinit var shimmerRejected : ShimmerFrameLayout
+    lateinit var shimmerAccepted : ShimmerFrameLayout
+    lateinit var llSubmitted : LinearLayout
+    lateinit var llRejected : LinearLayout
+    lateinit var llAccepted : LinearLayout
 
     private lateinit var mediaPlayer: MediaPlayer
     private lateinit var sharedPreferences: SharedPreferences
@@ -107,6 +119,11 @@ class JobReqScreenActivity : AppCompatActivity() {
         tvJobRole = findViewById(R.id.tv_jobrole)
         tvCompName = findViewById(R.id.tv_compname)
         tvPricePerClosure = findViewById(R.id.tv_priceperclosure)
+
+        tvCompLocation = findViewById(R.id.tv_companylocation)
+        tvJobType = findViewById(R.id.tv_jobtype)
+        tvJobSkills = findViewById(R.id.tv_jobskills)
+
         tvJobDesc = findViewById(R.id.tv_jobdesc)
         tvShowMore= findViewById(R.id.tv_showmore)
         scrollView = findViewById(R.id.scroll_view)
@@ -127,6 +144,15 @@ class JobReqScreenActivity : AppCompatActivity() {
         tvRSubText = findViewById(R.id.tv_rsubtext)
         rvAccepted = findViewById(R.id.rv_accepted)
         tvASubText = findViewById(R.id.tv_asubtext)
+
+        shimmerSubmitted = findViewById(R.id.shimmer_submitted)
+        shimmerRejected = findViewById(R.id.shimmer_rejected)
+        shimmerAccepted = findViewById(R.id.shimmer_accepted)
+
+        llSubmitted = findViewById(R.id.ll_submitted)
+        llRejected = findViewById(R.id.ll_rejected)
+        llAccepted = findViewById(R.id.ll_accepted)
+
         mediaPlayer = MediaPlayer.create(this@JobReqScreenActivity, R.raw.file_upload_success)
 
         ivExit.setOnClickListener {
@@ -140,9 +166,18 @@ class JobReqScreenActivity : AppCompatActivity() {
         tvJobRole.text = intent.getStringExtra("jobRole")
         tvCompName.text = intent.getStringExtra("compName")
         tvPricePerClosure.text = intent.getStringExtra("pricePerClosure")
+        tvCompLocation.text = intent.getStringExtra("compLocation")
+        tvJobType.text = intent.getStringExtra("jobType")
+        tvJobSkills.text = intent.getStringExtra("jobSkills")
         val jobDesc: String? = intent.getStringExtra("jobDesc")
 
-        tvJobDesc.text = jobDesc?.substring(0,150) + "..."
+
+        if (tvJobDesc.text.length >= 150) {
+            tvJobDesc.text = jobDesc?.substring(0,150) + "..."
+        } else {
+            tvJobDesc.text = jobDesc
+            tvShowMore.visibility = View.GONE
+        }
 
         tvHeaderJobRole.text = tvJobRole.text
         tvHeaderCompName.text = tvCompName.text
@@ -320,6 +355,7 @@ class JobReqScreenActivity : AppCompatActivity() {
                 val UUIDFileName = selectedUUIDFilesNames[filePosition]
                 val fileId = currTime
 
+
                 val newResumeData = hashMapOf<String, Any>(
                     "submitdata" to hashMapOf<String, Any>(
                         jobId to hashMapOf<String, Any>(
@@ -346,18 +382,20 @@ class JobReqScreenActivity : AppCompatActivity() {
                     .addOnFailureListener { e ->
                         Log.d("FirestoreDB", "Document update failed: ${e.message}")
                     }
+
             } else {
                 Log.d("FirestoreDB", "Document doesn't exist")
             }
         }
 
         if (isLastFile) {
+
+            Handler(Looper.getMainLooper()).postDelayed({
+                refreshSubmissions()
+            },500)
+
             mediaPlayer.start()
             Toast.makeText(this@JobReqScreenActivity, "PDF(s) Uploaded Successfully!!", Toast.LENGTH_LONG).show()
-
-            Handler().postDelayed({
-                refreshSubmissions()
-            }, 1200)
 
             btnUploadResume.setBackgroundColor(Color.parseColor("#e51e26"))
             btnUploadResume.isEnabled = true
@@ -389,6 +427,18 @@ class JobReqScreenActivity : AppCompatActivity() {
     }
 
     private fun refreshSubmissions() {
+        shimmerSubmitted.visibility = View.VISIBLE
+        shimmerAccepted.visibility = View.VISIBLE
+        shimmerRejected.visibility = View.VISIBLE
+
+        llSubmitted.visibility = View.GONE
+        llAccepted.visibility = View.GONE
+        llRejected.visibility = View.GONE
+
+        shimmerSubmitted.startShimmer()
+        shimmerAccepted.startShimmer()
+        shimmerRejected.startShimmer()
+
         val userDocumentRef = db.collection("users").document(userDocumentId)
 
         submittedCount = 0
@@ -403,6 +453,8 @@ class JobReqScreenActivity : AppCompatActivity() {
 
                 if (submitData != null) {
                     val uploadedResumes = submitData[jobId] as? Map<*, *>
+
+                    Log.d("uploadedResumes", uploadedResumes.toString())
 
                     if (uploadedResumes != null) {
                         var resumeProcessedCount = 0
@@ -437,18 +489,37 @@ class JobReqScreenActivity : AppCompatActivity() {
                                 tvRejected.text = rejectedCount.toString()
                                 tvAccepted.text = acceptedCount.toString()
 
+
                                 submittedAdapter.notifyDataSetChanged()
                                 rejectedAdapter.notifyDataSetChanged()
                                 acceptedAdapter.notifyDataSetChanged()
-
 
                             }
                         }
                     }
                 }
             } else {
-                // Document does not exist
+                 // Document not exists
             }
         }
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            shimmerSubmitted.stopShimmer()
+            shimmerAccepted.stopShimmer()
+            shimmerRejected.stopShimmer()
+
+            shimmerSubmitted.visibility = View.GONE
+            shimmerAccepted.visibility = View.GONE
+            shimmerRejected.visibility = View.GONE
+
+            llSubmitted.visibility = View.VISIBLE
+            llAccepted.visibility = View.VISIBLE
+            llRejected.visibility = View.VISIBLE
+
+            Log.d("submittedCount", submittedCount.toString())
+            Log.d("rejectedCount", rejectedCount.toString())
+            Log.d("acceptedCount", acceptedCount.toString())
+
+        }, 4000)
     }
 }

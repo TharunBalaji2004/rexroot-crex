@@ -194,6 +194,7 @@ class MainActivity : AppCompatActivity() {
                     savePdfUrlToFirestore(downloadUrl.toString(), index == fileUris.size - 1)
                 } else {
                     // Handle the upload failure
+                    Log.e("FirestoreDB","PDF Upload failure")
                 }
             }
         }

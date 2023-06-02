@@ -48,7 +48,7 @@
 
                     <TextView
                         android:id="@+id/tv_rejected"
-                        android:layout_width="wrap_content"
+                        android:layout_width="41dp"
                         android:layout_height="wrap_content"
                         android:text="R: 0"
                         android:textColor="#FF0000"
@@ -96,12 +96,12 @@
                     android:layout_gravity="start"/>
 
                 <TextView
-                    android:id="@+id/jobPlaceTextView"
+                    android:id="@+id/tv_jobsubtext"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="#808080"
                     android:textSize="12sp"
-                    android:text="Chennai, Tamil Nadu (On-site)"
+                    android:text=""
                     android:layout_gravity="start"/>
 
             </LinearLayout>
@@ -109,8 +109,34 @@
 
         </RelativeLayout>
 
+        <LinearLayout
+            android:id="@+id/jobreq_row2"
+            android:layout_below="@id/jobreq_row1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="20sp"
+            android:paddingEnd="20sp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:text="Skills: ">
+            </TextView>
+
+            <TextView
+                android:id="@+id/tv_jobskills"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:text="">
+            </TextView>
+
+        </LinearLayout>
+
         <RelativeLayout
-            android:layout_below="@+id/jobreq_row1"
+            android:layout_below="@+id/jobreq_row2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10sp">
