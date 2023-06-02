@@ -169,6 +169,7 @@ class JobReqScreenActivity : AppCompatActivity() {
         tvCompLocation.text = intent.getStringExtra("compLocation")
         tvJobType.text = intent.getStringExtra("jobType")
         tvJobSkills.text = intent.getStringExtra("jobSkills")
+        tvJobDesc.text = intent.getStringExtra("jobDesc")
         val jobDesc: String? = intent.getStringExtra("jobDesc")
 
 
