@@ -7,4 +7,5 @@
         <item name="android:fontFamily">@font/notosans_regular</item>
         <!-- <item name="android:statusBarColor">#FF0000</item> -->
     </style>
+
 </resources>

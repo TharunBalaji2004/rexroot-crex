@@ -24,6 +24,8 @@ import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.rexrootcrexapp.Data.JobReqDataClass
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -46,7 +48,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var jobReqList: ArrayList<JobReqDataClass>
     private lateinit var loadingProgressBar: ProgressBar
     private lateinit var searchView: SearchView
-    private lateinit var ivLogOut: ImageView
+    private lateinit var ivMyProfile: ImageView
     private lateinit var fileName : String
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var userDocumentId : String
@@ -77,13 +79,15 @@ class MainActivity : AppCompatActivity() {
         jobReqList = arrayListOf()
         loadingProgressBar = findViewById(R.id.pb_jobreq)
         searchView = findViewById(R.id.sv_searchjobrole)
-        ivLogOut = findViewById(R.id.iv_logout)
+        ivMyProfile = findViewById(R.id.iv_myprofile)
 
         val firebaseDB = FirebaseDatabase.getInstance().getReference("root")
         val query = firebaseDB.orderByKey()
         val editor = sharedPreferences.edit()
 
-        ivLogOut.setOnClickListener {
+        //setProfileImage()
+
+        ivMyProfile.setOnClickListener {
             val intent = Intent(this@MainActivity,MyProfileScreenActivity::class.java)
             startActivity(intent)
         }
@@ -281,6 +285,15 @@ class MainActivity : AppCompatActivity() {
             fileName = uri.lastPathSegment
         }
         return fileName ?: "N/A"
+    }
+
+    private fun setProfileImage() {
+        val profileImageUrl: String? = sharedPreferences.getString("imageUrl","")
+
+        Glide.with(this)
+            .load(profileImageUrl)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .into(ivMyProfile)
     }
 
     override fun onBackPressed() {

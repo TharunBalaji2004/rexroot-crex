@@ -128,8 +128,13 @@ class SignupScreenActivity : AppCompatActivity() {
                                 progressBar.visibility = View.INVISIBLE
                                 Toast.makeText(this@SignupScreenActivity, "Account created successfully",Toast.LENGTH_SHORT).show()
 
+                                findUsersDocumentRef(userEmail)
+
                                 editor.putBoolean("isLoggedIn",true)
                                 editor.putString("userEmailID",userEmail)
+                                editor.putString("emailId",userEmail)
+                                editor.putString("fullName",userFullName)
+                                editor.putString("mobileNumber",userMobileNumber)
                                 editor.commit()
 
                                 val intent = Intent(this@SignupScreenActivity, OnboardingScreenActivity::class.java)
@@ -209,6 +214,28 @@ class SignupScreenActivity : AppCompatActivity() {
         }
 
         return flag
+    }
+
+    private fun findUsersDocumentRef(userEmailID: String) {
+        val db = FirebaseFirestore.getInstance()
+        val collectionRef = db.collection("users")
+
+        collectionRef
+            .whereEqualTo("profiledata.emailid", userEmailID)
+            .get()
+            .addOnSuccessListener { querySnapshot ->
+                if (!querySnapshot.isEmpty) {
+                    val document = querySnapshot.documents[0]
+                    editor.putString("userDocumentId", document.id)
+                    Log.d("userDocumentId (LOGIN)","userDocumentId: ${document.id}")
+                    editor.commit()
+                } else {
+                    Log.d("FirestoreDB","Profile Data not found")
+                }
+            }
+            .addOnFailureListener { exception ->
+                // Error occurred
+            }
     }
 
     override fun onBackPressed() {

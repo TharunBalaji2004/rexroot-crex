@@ -231,10 +231,12 @@ class LoginScreenActivity : AppCompatActivity() {
                     val profileData = documentSnapshot.get("profiledata") as? Map<*,*>
                     Log.d("profiledata",profileData.toString())
 
+                    val imageUrl: Any? = profileData?.get("imageurl")
                     val emailId: Any? = profileData?.get("emailid")
                     val fullName: Any? = profileData?.get("fullname")
                     val mobileNumber: Any? = profileData?.get("mobilenumber")
 
+                    editor.putString("imageUrl",imageUrl.toString())
                     editor.putString("emailId",emailId.toString())
                     editor.putString("fullName",fullName.toString())
                     editor.putString("mobileNumber",mobileNumber.toString())
