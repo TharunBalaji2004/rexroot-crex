@@ -318,7 +318,7 @@ class JobReqScreenActivity : AppCompatActivity() {
 
         fileUris.forEachIndexed { index, fileUri ->
             fileName = UUID.randomUUID().toString()
-            val pdfRef = storageRef.child("$userDocumentId/$jobId/${fileName}.pdf")
+            val pdfRef = storageRef.child("$userDocumentId/submitdata/$jobId/${fileName}")
 
             selectedUUIDFilesNames.add(fileName)
             selectedFilesNames.add(getFileNameFromUri(fileUri))
@@ -520,6 +520,6 @@ class JobReqScreenActivity : AppCompatActivity() {
             Log.d("rejectedCount", rejectedCount.toString())
             Log.d("acceptedCount", acceptedCount.toString())
 
-        }, 4000)
+        }, 3000)
     }
 }
