@@ -28,6 +28,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.facebook.shimmer.ShimmerFrameLayout
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
@@ -43,6 +44,7 @@ import java.util.UUID
 class JobReqScreenActivity : AppCompatActivity() {
     private val PDF_REQUEST_CODE = 123
     private val db = FirebaseFirestore.getInstance()
+    private val realtimedb = FirebaseDatabase.getInstance().reference
 
     private var selectedFiles = mutableListOf<Uri>()
     private var selectedFilesNames = mutableListOf<String>()
@@ -461,7 +463,6 @@ class JobReqScreenActivity : AppCompatActivity() {
                         var resumeProcessedCount = 0
 
                         for (itemResume in uploadedResumes.keys){
-
                             val resumeData = uploadedResumes[itemResume] as? Map<*, *>
                             val resumeStatus = resumeData?.get("resumeStatus")
                             val resumeName = resumeData?.get("resumeName").toString()
@@ -495,6 +496,18 @@ class JobReqScreenActivity : AppCompatActivity() {
                                 rejectedAdapter.notifyDataSetChanged()
                                 acceptedAdapter.notifyDataSetChanged()
 
+                                val submitdata = mutableMapOf<String,Any>()
+                                submitdata["${jobId}/submitdata/${userDocumentId}/submitted"] = submittedCount
+                                submitdata["${jobId}/submitdata/${userDocumentId}/rejected"] = rejectedCount
+                                submitdata["${jobId}/submitdata/${userDocumentId}/accepted"] = acceptedCount
+
+                                realtimedb.child("root").updateChildren(submitdata)
+                                    .addOnSuccessListener {
+                                        Log.d("FirebaseDB","(SUCCESSFUL) Submissions count updated")
+                                    }
+                                    .addOnFailureListener { error ->
+                                        Log.d("FirebaseDB","(UNSUCCESSFUL) "+error.message.toString())
+                                    }
                             }
                         }
                     }
@@ -520,6 +533,19 @@ class JobReqScreenActivity : AppCompatActivity() {
             Log.d("submittedCount", submittedCount.toString())
             Log.d("rejectedCount", rejectedCount.toString())
             Log.d("acceptedCount", acceptedCount.toString())
+
+            val submitdata = mutableMapOf<String,Any>()
+            submitdata["${jobId}/submitdata/${userDocumentId}/submitted"] = submittedCount
+            submitdata["${jobId}/submitdata/${userDocumentId}/rejected"] = rejectedCount
+            submitdata["${jobId}/submitdata/${userDocumentId}/accepted"] = acceptedCount
+
+            realtimedb.child("root").updateChildren(submitdata)
+                .addOnSuccessListener {
+                    Log.d("FirebaseDB","(SUCCESSFUL) Submissions count updated")
+                }
+                .addOnFailureListener { error ->
+                    Log.d("FirebaseDB","(UNSUCCESSFUL) "+error.message.toString())
+                }
 
         }, 3000)
     }

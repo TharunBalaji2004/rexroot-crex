@@ -48,7 +48,7 @@
 
                     <TextView
                         android:id="@+id/tv_rejected"
-                        android:layout_width="41dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="R: 0"
                         android:textColor="#FF0000"
@@ -57,9 +57,9 @@
 
                     <TextView
                         android:id="@+id/tv_accepted"
+                        android:layout_marginStart="10sp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="5dp"
                         android:text="A: 0"
                         android:textColor="#4CBB17"
                         android:textSize="18sp"

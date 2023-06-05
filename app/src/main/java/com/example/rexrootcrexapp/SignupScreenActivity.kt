@@ -18,6 +18,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -40,6 +41,7 @@ class SignupScreenActivity : AppCompatActivity() {
         get() = findViewById(R.id.tv_clickhere)
     private val progressBar : LinearLayout
         get() = findViewById(R.id.progress_bar)
+
 
     private lateinit var mAuth : FirebaseAuth
     private lateinit var mStore : FirebaseFirestore
@@ -172,7 +174,8 @@ class SignupScreenActivity : AppCompatActivity() {
                 "emailid" to emailid,
                 "mobilenumber" to mobilenumber
             ),
-            "submitdata" to hashMapOf<Any,Any>()
+            "submitdata" to hashMapOf<Any,Any>(),
+            "countdata" to hashMapOf<Any,Any>()
         )
 
         mStore.collection("users").add(user)
