@@ -31,6 +31,7 @@ class JobReqAdapter(private val jobReqList : ArrayList<JobReqDataClass>, private
 
     private var sharedPreferences: SharedPreferences = context.getSharedPreferences("UserPreferences", Context.MODE_PRIVATE)
     var editor: SharedPreferences.Editor = sharedPreferences.edit()
+    private val userDocumentId: String = sharedPreferences.getString("userDocumentId","").toString()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): JobReqViewHolder {
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.jobreq_card, parent, false)
@@ -39,6 +40,7 @@ class JobReqAdapter(private val jobReqList : ArrayList<JobReqDataClass>, private
 
     override fun onBindViewHolder(holder: JobReqViewHolder, position: Int) {
         val currentItem = filteredList[position]
+        Log.d("currentItem", currentItem.toString())
         holder.bind(currentItem)
     }
 
@@ -87,6 +89,9 @@ class JobReqAdapter(private val jobReqList : ArrayList<JobReqDataClass>, private
         val btnSubmitResume: LinearLayout = itemView.findViewById(R.id.btn_submitresume)
         val tvButtonText: TextView = itemView.findViewById(R.id.tv_buttontext)
         val tvJobSubText: TextView = itemView.findViewById(R.id.tv_jobsubtext)
+        val tvSubmitted: TextView = itemView.findViewById(R.id.tv_submitted)
+        val tvRejected: TextView = itemView.findViewById(R.id.tv_rejected)
+        val tvAccepted: TextView = itemView.findViewById(R.id.tv_accepted)
 
         fun bind(item: JobReqDataClass) {
             jobRole.text = item.jobRole
@@ -94,6 +99,15 @@ class JobReqAdapter(private val jobReqList : ArrayList<JobReqDataClass>, private
             pricePerClosure.text = "₹" + item.pricePerClosure
             jobSkills.text = item.jobSkills
             tvJobSubText.text = "${item.companyLocation} (${item.jobType})"
+
+            var userSubmitData = item.submitdata?.get(userDocumentId) as? Map<*,*>
+            Log.d("userSubmitData", userSubmitData.toString())
+
+            if (userSubmitData == null) userSubmitData = mapOf("submitted" to 0,"rejected" to 0,"accepted" to 0)
+
+            tvSubmitted.text = "S: ${userSubmitData?.get("submitted")}"
+            tvRejected.text = "S: ${userSubmitData?.get("rejected")}"
+            tvAccepted.text = "S: ${userSubmitData?.get("accepted")}"
 
             itemView.setOnClickListener {
                 val context = itemView.context

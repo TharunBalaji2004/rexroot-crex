@@ -8,5 +8,6 @@ data class JobReqDataClass(
     val jobType : String? = "N/A",
     val jobSkills : String? = "N/A",
     val pricePerClosure : String? = "N/A",
-    val jobDesc : String? = "N/A"
+    val jobDesc : String? = "N/A",
+    val submitdata: HashMap<String,Any>?= hashMapOf<String,Any>()
 )
